@@ -7,7 +7,7 @@ import (
 	"github.com/astaxie/beego"
 )
 
-// Operaciones Crud admin
+//AdministratorController Operaciones Crud admin
 type AdministratorController struct {
 	beego.Controller
 }

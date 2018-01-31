@@ -11,7 +11,7 @@ import (
 	"github.com/astaxie/beego"
 )
 
-// Operations about Files
+//FileController Operations about Files
 type FileController struct {
 	beego.Controller
 }

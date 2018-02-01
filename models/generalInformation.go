@@ -26,7 +26,7 @@ func GetStatus(session *mgo.Session, code string) (state int) {
 	utility.GetServiceXML(&StateUniversity, utility.StateService+code)
 	ValidateAdministator := db.Cursor(session, utility.CollectionAdministrator)
 	var ModuleActive ConfigurationOptions
-	err := ValidateAdministator.Find(nil).Select(bson.M{"moduloactivo": 1}).One(&ModuleActive)
+	err := ValidateAdministator.Find(nil).One(&ModuleActive)
 	if strings.Compare(StateUniversity.State, "ACTIVO") == 0 && ModuleActive.Moduloactivo == true {
 		MainSession := db.Cursor(session, utility.CollectionGeneral)
 		EconomicSession := db.Cursor(session, utility.CollectionEconomic)
@@ -49,9 +49,14 @@ func GetStatus(session *mgo.Session, code string) (state int) {
 		}
 		if InfoGeneral.EstadoProg == 0 {
 			var FacultadName XmlFaculty
+			count := 0
 			utility.GetServiceXML(&FacultadName, utility.FacultyService+code)
-			aa, _ := ValidateAdministator.Find(bson.M{"refrigerionocturno": bson.M{"$in": []string{FacultadName.NameFaculty}}}).Count()
-			if aa == 1 {
+			for _, element := range ModuleActive.Refrigerionocturno {
+				if element == FacultadName.NameFaculty {
+					count = 1
+				}
+			}
+			if count == 1 {
 				state = 2 //ACCES OK almuerzo y refrigerio
 			} else {
 				state = 1 //ACCES OK almuerzo

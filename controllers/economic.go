@@ -83,11 +83,10 @@ func (j *EconomicController) Put() {
 
 // @Title LastPut
 // @Description update the Infoapoyo
-// @Param	Codigo		path 	string	true		"The Codigo you want to update"
-// @Param	body		body 	models.Object	true		"The body"
+// @Param	code		path 	string	true		"The code you want to update"
 // @Success 200 {object} models.Object
-// @Failure 403 :Codigo is empty
-// @router /state/:Codigo [put]
+// @Failure 403 :code is empty
+// @router /state/:code [put]
 func (j *EconomicController) LastPut() {
 	code := j.Ctx.Input.Param(":code")
 

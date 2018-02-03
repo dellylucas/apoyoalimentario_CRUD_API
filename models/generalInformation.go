@@ -47,7 +47,7 @@ func GetStatus(session *mgo.Session, code string) (state int) {
 			EconomicSession.Insert(InfoEconomic)
 			err = EconomicSession.Find(bson.M{"id": InfoGeneral.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEconomic)
 		}
-		if InfoEconomic.EstadoProg == 0 {
+		if InfoEconomic.EstadoProg == 0 || InfoEconomic.EstadoProg == 4 {
 			var FacultadName XmlFaculty
 			count := 0
 			utility.GetServiceXML(&FacultadName, utility.FacultyService+code)

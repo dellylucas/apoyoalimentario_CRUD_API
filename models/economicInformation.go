@@ -34,6 +34,7 @@ type Economic struct {
 	EstadoProg      int           `json:"estadoprograma" bson:"estadoprograma"`
 	TipoSubsidio    string        `json:"tiposubsidio" bson:"tiposubsidio"`
 	Tipoapoyo       string        `json:"tipoapoyo" bson:"tipoapoyo"`
+	Mensaje         string        `json:"mensaje" bson:"mensaje"`
 }
 
 //GetInformationEconomic - get information economic current semester by code
@@ -91,6 +92,23 @@ func GetRequiredFiles(session *mgo.Session, code string) ([]string, error) {
 		}
 	}
 	return keyrequired, errP
+}
+
+//UpdateStateVerificator - update state later verification of student
+func UpdateStateVerificator(session *mgo.Session, cod string, info Economic) error {
+	MainSession := db.Cursor(session, utility.CollectionGeneral)
+	EconomicSession := db.Cursor(session, utility.CollectionEconomic)
+	var InfoGeneralU StudentInformation
+	var InfoEcoOldU Economic
+	errd := MainSession.Find(bson.M{"codigo": cod}).One(&InfoGeneralU)
+
+	err := EconomicSession.Find(bson.M{"id": InfoGeneralU.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcoOldU)
+	UpdateS := VerificatorUpdate(info, InfoEcoOldU)
+	err = EconomicSession.Update(bson.M{"id": InfoGeneralU.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}, &UpdateS)
+	if err != nil {
+		panic(errd)
+	}
+	return err
 }
 
 /* Functions Bonus*/
@@ -167,4 +185,14 @@ func Rescueinf(newI Economic, old Economic) ([]string, Economic) {
 	// 	old.TipoSubsidio = newI.TipoSubsidio
 	// }
 	return FileExists, old
+}
+
+//VerificatorUpdate - Update information model
+func VerificatorUpdate(newI Economic, old Economic) Economic {
+
+	old.EstadoProg = newI.EstadoProg
+	if strings.Compare(newI.Mensaje, "") != 0 {
+		old.Mensaje = newI.Mensaje
+	}
+	return old
 }

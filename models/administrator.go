@@ -61,9 +61,8 @@ func GetInscription(session *mgo.Session, State string, SedeChecker string) ([]S
 						"$match": bson.M{"estadoprograma": i,
 							"periodo":  time.Now().UTC().Year(),
 							"semestre": utility.Semester(),
-							"$expr": bson.M{"$and": []bson.M{
-								{"$eq": []string{"$$general_id", "$id"}},
-							},
+							"$expr": bson.M{
+								"$eq": []string{"$$general_id", "$id"},
 							}},
 					}},
 				"as": "informacioneconomica",
@@ -101,8 +100,6 @@ func Getname(model []StudentInformation, SedeChecker string) []StudentInformatio
 		utility.GetServiceXML(&ModelFacul, utility.FacultyService+model[fil].Codigo)
 		str := strings.Replace(ModelFacul.NameFaculty, "/", "-", -1)
 		if strings.Compare(SedeChecker, str) == 0 && len(model[fil].Informacioneconomica) > 0 {
-			s := len(model[fil].Informacioneconomica)
-			fmt.Println(s)
 			utility.GetServiceXML(&ModelBasic, utility.BasicService+model[fil].Codigo)
 			model[fil].Nombre = ModelBasic.Name
 			PruebaGetinfo = append(PruebaGetinfo, model[fil])

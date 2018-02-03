@@ -3,6 +3,7 @@ package controllers
 import (
 	"apoyoalimentario_CRUD_API/db"
 	"apoyoalimentario_CRUD_API/models"
+	"encoding/json"
 
 	"github.com/astaxie/beego"
 )
@@ -69,5 +70,28 @@ func (j *AdministratorController) GetConfig() {
 		j.Data["json"] = Message
 	}
 
+	j.ServeJSON()
+}
+
+// @Title PutState
+// @Description update the Infoapoyo
+// @Param	code		path 	string	true		"The code you want to update"
+// @Success 200 {object} models.Object
+// @Failure 403 :code is empty
+// @router /verification/:code [put]
+func (j *AdministratorController) PutState() {
+	code := j.Ctx.Input.Param(":code")
+
+	var InfoEcono models.Economic
+
+	json.Unmarshal(j.Ctx.Input.RequestBody, &InfoEcono)
+	session, _ := db.GetSession()
+	err := models.UpdateStateVerificator(session, code, InfoEcono)
+	if err != nil {
+		j.Data["json"] = err.Error()
+	} else {
+		j.Data["json"] = "ok"
+	}
+	defer session.Close()
 	j.ServeJSON()
 }

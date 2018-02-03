@@ -31,6 +31,14 @@ func init() {
 			MethodParams: param.Make(),
 			Params: nil})
 
+	beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:AdministratorController"] = append(beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:AdministratorController"],
+		beego.ControllerComments{
+			Method: "PutState",
+			Router: `/verification/:code`,
+			AllowHTTPMethods: []string{"put"},
+			MethodParams: param.Make(),
+			Params: nil})
+
 	beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:EconomicController"] = append(beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:EconomicController"],
 		beego.ControllerComments{
 			Method: "Get",

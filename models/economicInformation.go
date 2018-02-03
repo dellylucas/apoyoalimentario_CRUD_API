@@ -13,7 +13,7 @@ import (
 //Economic Struct for save information economic of student(s)
 type Economic struct {
 	ID              bson.ObjectId `json:"_id" bson:"_id,omitempty"`
-	Idc             string        `json:"id" bson:"id"`
+	Idc             bson.ObjectId `json:"id" bson:"id"`
 	Estrato         string        `json:"estrato" bson:"estrato"`
 	Ingresos        int           `json:"ingresos" bson:"ingresos"`
 	SostePropia     string        `json:"sostenibilidadpropia" bson:"sostenibilidadpropia"`
@@ -31,6 +31,7 @@ type Economic struct {
 	Periodo         int           `json:"periodo" bson:"periodo"`
 	Semestre        int           `json:"semestre" bson:"semestre"`
 	Matricula       int           `json:"matricula" bson:"matricula"`
+	EstadoProg      int           `json:"estadoprograma" bson:"estadoprograma"`
 	TipoSubsidio    string        `json:"tiposubsidio" bson:"tiposubsidio"`
 	Tipoapoyo       string        `json:"tipoapoyo" bson:"tipoapoyo"`
 }
@@ -42,7 +43,7 @@ func GetInformationEconomic(session *mgo.Session, code string) (Economic, error)
 	var InfoGeneral StudentInformation
 	var InfoEcono Economic
 	errP := MainSession.Find(bson.M{"codigo": code}).One(&InfoGeneral)
-	errP = EconomicSession.Find(bson.M{"id": InfoGeneral.ID.Hex(), "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcono)
+	errP = EconomicSession.Find(bson.M{"id": InfoGeneral.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcono)
 	return InfoEcono, errP
 }
 
@@ -53,9 +54,9 @@ func UpdateInformationEconomic(session *mgo.Session, newInfo Economic, code stri
 	var InfoGeneral StudentInformation
 	var InfoEcoOld Economic
 	errd := MainSession.Find(bson.M{"codigo": code}).One(&InfoGeneral)
-	errd = EconomicSession.Find(bson.M{"id": InfoGeneral.ID.Hex(), "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcoOld)
+	errd = EconomicSession.Find(bson.M{"id": InfoGeneral.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcoOld)
 	keyfiledelete, newInfo := Rescueinf(newInfo, InfoEcoOld)
-	err := EconomicSession.Update(bson.M{"id": InfoGeneral.ID.Hex(), "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}, &newInfo)
+	err := EconomicSession.Update(bson.M{"id": InfoGeneral.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}, &newInfo)
 	if err != nil {
 		panic(errd)
 	}
@@ -71,7 +72,7 @@ func GetRequiredFiles(session *mgo.Session, code string) ([]string, error) {
 	var key = []string{"PersonasACargo", "EmpleadorOArriendo", "CondicionEspecial", "CondicionDiscapacidad", "PatologiaAlimenticia"}
 	var keyrequired = []string{"FormatoInscripcion", "CartaADirectora", "CertificadoEstrato", "FotocopiaReciboServicio", "CertificadoIngresos"}
 	errP := MainSession.Find(bson.M{"codigo": code}).One(&InfoGeneral)
-	errP = EconomicSession.Find(bson.M{"id": InfoGeneral.ID.Hex(), "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcono)
+	errP = EconomicSession.Find(bson.M{"id": InfoGeneral.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcono)
 	if errP == nil {
 		if strings.Compare(InfoEcono.PersACargo, "si") == 0 {
 			keyrequired = append(keyrequired, key[0])
@@ -161,5 +162,9 @@ func Rescueinf(newI Economic, old Economic) ([]string, Economic) {
 	if strings.Compare(newI.Sisben, "") != 0 {
 		old.Sisben = newI.Sisben
 	}
+	//Rules
+	// if strings.Compare(newI.TipoSubsidio , "") != 0 {
+	// 	old.TipoSubsidio = newI.TipoSubsidio
+	// }
 	return FileExists, old
 }

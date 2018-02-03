@@ -68,13 +68,11 @@ func (j *EconomicController) Put() {
 	json.Unmarshal(j.Ctx.Input.RequestBody, &InfoEcono)
 	session, _ := db.GetSession()
 
-	keyFileDelete, err := models.UpdateInformationEconomic(session, InfoEcono, Codigo)
-	erro := models.Deletefile(session, Codigo, keyFileDelete)
-	if err != nil {
-		resul = err.Error()
-	}
-	if erro != "" {
-		resul = erro
+	keyFileDelete, erro := models.UpdateInformationEconomic(session, InfoEcono, Codigo)
+	models.Deletefile(session, Codigo, keyFileDelete)
+
+	if erro != nil {
+		resul = erro.Error()
 	}
 	j.Data["json"] = resul
 	defer session.Close()
@@ -95,7 +93,7 @@ func (j *EconomicController) LastPut() {
 	json.Unmarshal(j.Ctx.Input.RequestBody, &InfoEcono)
 	session, _ := db.GetSession()
 	keyFileDelete, erro := models.UpdateInformationEconomic(session, InfoEcono, code)
-	_ = models.Deletefile(session, code, keyFileDelete)
+	models.Deletefile(session, code, keyFileDelete)
 	if erro != nil {
 		j.Data["json"] = erro
 	} else {

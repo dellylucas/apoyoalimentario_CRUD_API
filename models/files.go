@@ -22,26 +22,19 @@ type FilesStudents struct {
 }
 
 //Deletefile - check files not used and delete
-func Deletefile(session *mgo.Session, code string, claves []string) string {
+func Deletefile(session *mgo.Session, code string, claves []string) {
 
 	FileSession := db.Cursor(session, utility.CollectionHistoricFiles)
 	fromDate, toDate := utility.GetInitEnd()
 	count := 0
 	path := utility.FileSavePath + code + "\\" + strconv.Itoa(time.Now().UTC().Year()) + "-" + strconv.Itoa(utility.Semester()) + "\\"
-	var errGlobal string
 	for count < len(claves) {
 
-		errP := FileSession.Remove(bson.M{"codigo": code, "nombre": claves[count], "fecha": bson.M{"$gt": fromDate, "$lt": toDate}})
-		err := os.Remove(path + claves[count] + ".pdf")
-		if errP != nil {
-			errGlobal = errGlobal + "/ " + errP.Error() + claves[count] + ".pdf"
-		}
-		if err != nil {
-			errGlobal = errGlobal + "/ " + err.Error() + claves[count] + ".pdf"
-		}
+		_ = FileSession.Remove(bson.M{"codigo": code, "nombre": claves[count], "fecha": bson.M{"$gt": fromDate, "$lt": toDate}})
+		_ = os.Remove(path + claves[count] + ".pdf")
+
 		count++
 	}
-	return errGlobal
 }
 
 //Completefile - Check files complete

@@ -12,11 +12,11 @@ import (
 
 //StudentInformation struct of information fgeneral of student
 type StudentInformation struct {
-	ID               bson.ObjectId `json:"_id" bson:"_id,omitempty"`
-	Codigo           string        `json:"codigo" bson:"codigo"`
-	Fechainscripcion time.Time     `json:"ultimafechainscripcion"  bson:"ultimafechainscripcion"`
-	EstadoProg       int           `json:"estadoprograma" bson:"estadoprograma"`
-	Nombre           string        `json:",omitempty" bson:",omitempty"`
+	ID                   bson.ObjectId `json:"_id" bson:"_id,omitempty"`
+	Codigo               string        `json:"codigo" bson:"codigo"`
+	Fechainscripcion     time.Time     `json:"ultimafechainscripcion"  bson:"ultimafechainscripcion"`
+	Nombre               string        `json:",omitempty" bson:",omitempty"`
+	Informacioneconomica []Economic    `json:",omitempty" bson:",omitempty"`
 }
 
 //GetStatus - get status current of student
@@ -37,17 +37,17 @@ func GetStatus(session *mgo.Session, code string) (state int) {
 			InfoGeneral = TemplatenewP(InfoGeneral, code)
 			MainSession.Insert(InfoGeneral)
 			_ = MainSession.Find(bson.M{"codigo": code}).One(&InfoGeneral)
-			InfoEconomic = TemplatenewEcon(InfoEconomic, InfoGeneral.ID.Hex(), code)
+			InfoEconomic = TemplatenewEcon(InfoEconomic, InfoGeneral.ID, code)
 			EconomicSession.Insert(InfoEconomic)
 			err = nil
 		}
-		err = EconomicSession.Find(bson.M{"id": InfoGeneral.ID.Hex(), "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEconomic)
+		err = EconomicSession.Find(bson.M{"id": InfoGeneral.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEconomic)
 		if err != nil {
-			InfoEconomic = TemplatenewEcon(InfoEconomic, InfoGeneral.ID.Hex(), code)
+			InfoEconomic = TemplatenewEcon(InfoEconomic, InfoGeneral.ID, code)
 			EconomicSession.Insert(InfoEconomic)
-			err = EconomicSession.Find(bson.M{"id": InfoGeneral.ID.Hex(), "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEconomic)
+			err = EconomicSession.Find(bson.M{"id": InfoGeneral.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEconomic)
 		}
-		if InfoGeneral.EstadoProg == 0 {
+		if InfoEconomic.EstadoProg == 0 {
 			var FacultadName XmlFaculty
 			count := 0
 			utility.GetServiceXML(&FacultadName, utility.FacultyService+code)
@@ -83,9 +83,9 @@ func UpdateState(session *mgo.Session, cod string) error {
 	UpdateDate := LastDate(InfoGeneralU)
 	errd = MainSession.Update(bson.M{"codigo": cod}, &UpdateDate)
 
-	err := EconomicSession.Find(bson.M{"id": InfoGeneralU.ID.Hex(), "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcoOldU)
+	err := EconomicSession.Find(bson.M{"id": InfoGeneralU.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcoOldU)
 	UpdateS := LastState(InfoEcoOldU)
-	err = EconomicSession.Update(bson.M{"id": InfoGeneralU.ID.Hex(), "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}, &UpdateS)
+	err = EconomicSession.Update(bson.M{"id": InfoGeneralU.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}, &UpdateS)
 	if err != nil {
 		panic(errd)
 	}
@@ -98,15 +98,15 @@ func UpdateState(session *mgo.Session, cod string) error {
 func TemplatenewP(j StudentInformation, cod string) StudentInformation {
 
 	j.Codigo = cod
-	j.EstadoProg = 0
 	return j
 }
 
 //TemplatenewEcon - create new template for the economic information of students
-func TemplatenewEcon(j Economic, id string, cod string) Economic {
+func TemplatenewEcon(j Economic, id bson.ObjectId, cod string) Economic {
 	var v XmlMatricula
 	utility.GetServiceXML(&v, utility.EnrollmentService+cod)
 
+	j.EstadoProg = 0
 	j.ID = bson.NewObjectId()
 	j.Idc = id
 	j.Periodo = time.Now().UTC().Year()
@@ -120,13 +120,13 @@ func TemplatenewEcon(j Economic, id string, cod string) Economic {
 func LastDate(old StudentInformation) StudentInformation {
 
 	old.Fechainscripcion = time.Now().UTC()
-	old.EstadoProg = 1
+
 	return old
 }
 
 //LastState - Update Information economic empty
 func LastState(old Economic) Economic {
-
+	old.EstadoProg = 1
 	if strings.Compare(old.Ciudad, "") == 0 {
 		old.Ciudad = "bogota"
 	}

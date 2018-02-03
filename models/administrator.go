@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -50,8 +51,24 @@ func GetInscription(session *mgo.Session, State string, SedeChecker string) ([]S
 
 	var InfoGeneralComplete []StudentInformation
 
-	fromDate, toDate := utility.GetInitEnd()
-	err := MainSession.Find(bson.M{"estadoprograma": i, "ultimafechainscripcion": bson.M{"$gt": fromDate, "$lt": toDate}}).All(&InfoGeneralComplete)
+	query := []bson.M{
+		{
+			"$lookup": bson.M{ // lookup the documents table here
+				"from": "informacioneconomica",
+				"let":  bson.M{"general_id": "$_id"},
+				"pipeline": []bson.M{
+					{
+						"$match": bson.M{"estadoprograma": i,
+							"periodo":  time.Now().UTC().Year(),
+							"semestre": utility.Semester(),
+							"$expr": bson.M{"$and": []bson.M{
+								{"$eq": []string{"$$general_id", "$id"}},
+							},
+							}},
+					}},
+				"as": "informacioneconomica",
+			}}}
+	err := MainSession.Pipe(query).All(&InfoGeneralComplete)
 	InfoGeneralComplete = Getname(InfoGeneralComplete, SedeChecker)
 	if err != nil {
 		fmt.Println(err)
@@ -83,7 +100,9 @@ func Getname(model []StudentInformation, SedeChecker string) []StudentInformatio
 	for fil := range model {
 		utility.GetServiceXML(&ModelFacul, utility.FacultyService+model[fil].Codigo)
 		str := strings.Replace(ModelFacul.NameFaculty, "/", "-", -1)
-		if strings.Compare(SedeChecker, str) == 0 {
+		if strings.Compare(SedeChecker, str) == 0 && len(model[fil].Informacioneconomica) > 0 {
+			s := len(model[fil].Informacioneconomica)
+			fmt.Println(s)
 			utility.GetServiceXML(&ModelBasic, utility.BasicService+model[fil].Codigo)
 			model[fil].Nombre = ModelBasic.Name
 			PruebaGetinfo = append(PruebaGetinfo, model[fil])

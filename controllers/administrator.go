@@ -62,7 +62,7 @@ func (j *AdministratorController) GetStudents() {
 func (j *AdministratorController) GetConfig() {
 	session, _ := db.GetSession()
 
-	Message, err := models.GetMessage(session)
+	Message, err := models.GetConfiguration(session)
 
 	if err != nil {
 		j.Data["json"] = err.Error()

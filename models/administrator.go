@@ -75,17 +75,17 @@ func GetInscription(session *mgo.Session, State string, SedeChecker string) ([]S
 	return InfoGeneralComplete, err
 }
 
-//GetMessage - View message administrator
-func GetMessage(session *mgo.Session) (string, error) {
+//GetConfiguration - View message administrator
+func GetConfiguration(session *mgo.Session) (ConfigurationOptions, error) {
 
 	BDMessage := db.Cursor(session, utility.CollectionAdministrator)
 	defer session.Close()
 	var MessageComplete ConfigurationOptions
-	err := BDMessage.Find(nil).Select(bson.M{"mensajeestudiantes": 1}).One(&MessageComplete)
+	err := BDMessage.Find(nil).One(&MessageComplete)
 	if err != nil {
 		fmt.Println(err)
 	}
-	return MessageComplete.Mensajeestudiantes, err
+	return MessageComplete, err
 }
 
 /* function bonus */

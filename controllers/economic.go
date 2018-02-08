@@ -16,6 +16,7 @@ type EconomicController struct {
 	beego.Controller
 }
 
+//GetState - get State of student for intro in plataform
 // @Title GetState
 // @Description get State of student for intro in plataform
 // @Param	code		path 	string	true		"El id de la Infoapoyo a consultar"
@@ -31,6 +32,7 @@ func (j *EconomicController) GetState() {
 	j.ServeJSON()
 }
 
+//Get - get Infoapoyo by code
 // @Title Get
 // @Description get Infoapoyo by code
 // @Param	code		path 	string	true		"El id de la Infoapoyo a consultar"
@@ -53,7 +55,8 @@ func (j *EconomicController) Get() {
 	j.ServeJSON()
 }
 
-// @Title Update
+//Put - update the Infoapoyo
+// @Title Put
 // @Description update the Infoapoyo
 // @Param	code		path 	string	true		"The code you want to update"
 // @Param	body		body 	models.Object	true		"The body"
@@ -79,6 +82,7 @@ func (j *EconomicController) Put() {
 	j.ServeJSON()
 }
 
+//LastPut - update the Infoapoyo
 // @Title LastPut
 // @Description update the Infoapoyo
 // @Param	code		path 	string	true		"The code you want to update"

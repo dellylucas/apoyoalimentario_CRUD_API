@@ -4,6 +4,8 @@ import (
 	"apoyoalimentario_CRUD_API/db"
 	"apoyoalimentario_CRUD_API/models"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 
 	"github.com/astaxie/beego"
 )
@@ -13,6 +15,7 @@ type AdministratorController struct {
 	beego.Controller
 }
 
+//Get - get Administrator by user
 // @Title Get
 // @Description get Administrator by user
 // @Param	user		path 	string	true		"El estado del proceso a consultar"
@@ -34,7 +37,8 @@ func (j *AdministratorController) Get() {
 	j.ServeJSON()
 }
 
-// @Title Get
+//GetStudents - get Administrator by state
+// @Title GetStudents
 // @Description get Administrator by state
 // @Param	state		path 	string	true		"El estado del proceso a consultar"
 // @Param	sede		path 	string	true		"El estado del proceso a consultar"
@@ -55,7 +59,8 @@ func (j *AdministratorController) GetStudents() {
 	j.ServeJSON()
 }
 
-// @Title Get
+//GetConfig - get configuration Administrator
+// @Title GetConfig
 // @Description get configuration Administrator
 // @Success 200 {string}
 // @router / [get]
@@ -73,6 +78,7 @@ func (j *AdministratorController) GetConfig() {
 	j.ServeJSON()
 }
 
+//PutState - update the Infoapoyo
 // @Title PutState
 // @Description update the Infoapoyo
 // @Param	code		path 	string	true		"The code you want to update"
@@ -94,4 +100,29 @@ func (j *AdministratorController) PutState() {
 	}
 	defer session.Close()
 	j.ServeJSON()
+}
+
+//GetReport - reports Administrator by state
+// @Title GetReport
+// @Description reports Administrator by state
+// @Param	state		path 	string	true		"El estado del proceso a consultar"
+// @Param	sede		path 	string	true		"El estado del proceso a consultar"
+// @Success 200 {object} models.Infoapoyo
+// @Failure 403 :state is empty
+// @router /report/:state/:sede [get]
+func (j *AdministratorController) GetReport() {
+	state := j.Ctx.Input.Param(":state")
+	sedeChecker := j.Ctx.Input.Param(":sede")
+	session, _ := db.GetSession()
+	UserType, err := models.GetInscription(session, state, sedeChecker)
+	models.Reports(UserType, sedeChecker)
+	archi, _ := ioutil.ReadFile(sedeChecker + ".xlsx")
+	if err != nil {
+		fmt.Printf(err.Error())
+	}
+	if err != nil {
+		j.Data["json"] = err.Error()
+	} else {
+		j.Ctx.Output.Body(archi)
+	}
 }

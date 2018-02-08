@@ -16,6 +16,7 @@ type FileController struct {
 	beego.Controller
 }
 
+//Post - create Files
 // @Title CreateFile
 // @Description create Files
 // @Param	body		body 	models.File	true		"body for File content"
@@ -57,6 +58,7 @@ func (u *FileController) Post() {
 	u.ServeJSON()
 }
 
+//Get - get File by code
 // @Title Get
 // @Description get File by code
 // @Param	uid		path 	string	true		"The key for staticblock"

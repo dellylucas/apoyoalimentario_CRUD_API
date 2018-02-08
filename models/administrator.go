@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/tealeg/xlsx"
+
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -106,4 +108,62 @@ func Getname(model []StudentInformation, SedeChecker string) []StudentInformatio
 		}
 	}
 	return PruebaGetinfo
+}
+
+//Reports - Generate Reports
+func Reports(sa []StudentInformation, SedeChecker string) {
+	var file *xlsx.File
+	var sheet *xlsx.Sheet
+	var row *xlsx.Row
+	var cell *xlsx.Cell
+	var cellnombre *xlsx.Cell
+	var celldos *xlsx.Cell
+	var cellfecha *xlsx.Cell
+	var celltipoApoyo *xlsx.Cell
+	var celltipoSubs *xlsx.Cell
+	var cellObserv *xlsx.Cell
+	var err error
+
+	file = xlsx.NewFile()
+	sheet, err = file.AddSheet("Prueba1")
+	if err != nil {
+		fmt.Printf(err.Error())
+	}
+	row = sheet.AddRow()
+	cell = row.AddCell()
+	cellnombre = row.AddCell()
+	celldos = row.AddCell()
+	cellfecha = row.AddCell()
+	celltipoApoyo = row.AddCell()
+	celltipoSubs = row.AddCell()
+	cellObserv = row.AddCell()
+	cell.Value = "codigo"
+	cellnombre.Value = "Nombre"
+	celldos.Value = "Ciudad"
+	cellfecha.Value = "Fecha de inscripcion"
+	celltipoApoyo.Value = "Tipo de Apoyo"
+	celltipoSubs.Value = "Subsidio"
+	cellObserv.Value = "Observaciones"
+	for fil := range sa {
+		row = sheet.AddRow()
+		cell = row.AddCell()
+		cellnombre = row.AddCell()
+		celldos = row.AddCell()
+		cellfecha = row.AddCell()
+		celltipoApoyo = row.AddCell()
+		celltipoSubs = row.AddCell()
+		cellObserv = row.AddCell()
+		cell.Value = sa[fil].Codigo
+		cellnombre.Value = sa[fil].Nombre
+		celldos.Value = sa[fil].Informacioneconomica[0].Ciudad
+		cellfecha.SetDate(sa[fil].Fechainscripcion)
+		celltipoApoyo.Value = sa[fil].Informacioneconomica[0].Tipoapoyo
+		celltipoSubs.Value = sa[fil].Informacioneconomica[0].TipoSubsidio
+		cellObserv.Value = sa[fil].Informacioneconomica[0].Mensaje
+	}
+
+	err = file.Save(SedeChecker + ".xlsx")
+	if err != nil {
+		fmt.Printf(err.Error())
+	}
 }

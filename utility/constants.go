@@ -20,7 +20,7 @@ const StateService = "http://jbpm.udistritaloas.edu.co:8280/services/bienestarPr
 const FileSavePath = "C:\\xampp\\htdocs\\Tempfiles\\"
 
 //ServerPath - URL of server where save files
-const ServerPath = "http://192.168.1.37:80/Tempfiles/"
+const ServerPath = "http://localhost:80/Tempfiles/"
 
 /* Collections of Data Base*/
 

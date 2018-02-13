@@ -37,6 +37,7 @@ type Economic struct {
 	Mensaje         string        `json:"mensaje" bson:"mensaje"`
 	Telefono        string        `json:"telefono" bson:"telefono"`
 	Correo          string        `json:"correo" bson:"correo"`
+	Antiguedad      string        `json:"antiguedad" bson:"antiguedad"`
 }
 
 //GetInformationEconomic - get information economic current semester by code
@@ -187,6 +188,9 @@ func Rescueinf(newI Economic, old Economic) ([]string, Economic) {
 	}
 	if strings.Compare(newI.Correo, "") != 0 {
 		old.Correo = newI.Correo
+	}
+	if strings.Compare(newI.Antiguedad, "") != 0 {
+		old.Antiguedad = newI.Antiguedad
 	}
 	//Rules
 	// if strings.Compare(newI.TipoSubsidio , "") != 0 {

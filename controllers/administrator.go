@@ -78,6 +78,29 @@ func (j *AdministratorController) GetConfig() {
 	j.ServeJSON()
 }
 
+//PutConfig - update the configuration
+// @Title PutConfig
+// @Description update the configuration
+// @Param	body		body 	models.Object	true		"The body"
+// @Success 200 {object} models.Object
+// @router / [put]
+func (j *AdministratorController) PutConfig() {
+
+	var InfoConfig models.ConfigurationOptions
+	resul := "success"
+	json.Unmarshal(j.Ctx.Input.RequestBody, &InfoConfig)
+	session, _ := db.GetSession()
+
+	erro := models.UpdateInformationConfig(session, InfoConfig)
+
+	if erro != nil {
+		resul = erro.Error()
+	}
+	j.Data["json"] = resul
+	defer session.Close()
+	j.ServeJSON()
+}
+
 //PutState - update the Infoapoyo
 // @Title PutState
 // @Description update the Infoapoyo

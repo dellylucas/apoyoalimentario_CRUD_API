@@ -17,6 +17,14 @@ func init() {
 
 	beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:AdministratorController"] = append(beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:AdministratorController"],
 		beego.ControllerComments{
+			Method: "PutConfig",
+			Router: `/`,
+			AllowHTTPMethods: []string{"put"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:AdministratorController"] = append(beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:AdministratorController"],
+		beego.ControllerComments{
 			Method: "GetStudents",
 			Router: `/:state/:sede`,
 			AllowHTTPMethods: []string{"get"},

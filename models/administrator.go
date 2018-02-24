@@ -16,9 +16,9 @@ import (
 
 //ConfigurationOptions - Model of configuarations of administrator
 type ConfigurationOptions struct {
-	Mensajeestudiantes string   `json:"mensajeestudiantes,omitempty" bson:"mensajeestudiantes,omitempty"`
-	Moduloactivo       bool     `json:"moduloactivo,omitempty" bson:"moduloactivo,omitempty"`
-	Refrigerionocturno []string `json:"refrigerionocturno,omitempty" bson:"refrigerionocturno,omitempty"`
+	Mensajeestudiantes string   `json:"mensajeestudiantes" bson:"mensajeestudiantes"`
+	Moduloactivo       bool     `json:"moduloactivo" bson:"moduloactivo"`
+	Refrigerionocturno []string `json:"refrigerionocturno" bson:"refrigerionocturno"`
 }
 
 //TypeRol - Model of type rol of user
@@ -88,6 +88,15 @@ func GetConfiguration(session *mgo.Session) (ConfigurationOptions, error) {
 		fmt.Println(err)
 	}
 	return MessageComplete, err
+}
+
+//UpdateInformationConfig - Update the information economic of student
+func UpdateInformationConfig(session *mgo.Session, newInfo ConfigurationOptions) error {
+	BDMessage := db.Cursor(session, utility.CollectionAdministrator)
+	defer session.Close()
+	err := BDMessage.Update(nil, &newInfo)
+
+	return err
 }
 
 /* function bonus */

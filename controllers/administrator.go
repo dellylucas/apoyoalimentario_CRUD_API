@@ -4,8 +4,6 @@ import (
 	"apoyoalimentario_CRUD_API/db"
 	"apoyoalimentario_CRUD_API/models"
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
 
 	"github.com/astaxie/beego"
 )
@@ -13,28 +11,6 @@ import (
 //AdministratorController Operaciones Crud admin
 type AdministratorController struct {
 	beego.Controller
-}
-
-//Get - get Administrator by user
-// @Title Get
-// @Description get Administrator by user
-// @Param	user		path 	string	true		"El estado del proceso a consultar"
-// @Success 200 {object} models.Infoapoyo
-// @Failure 403 :user is empty
-// @router /:user [get]
-func (j *AdministratorController) Get() {
-	user := j.Ctx.Input.Param(":user")
-	session, _ := db.GetSession()
-
-	UserType, err := models.GetTypeUser(session, user)
-
-	if err != nil {
-		j.Data["json"] = err.Error()
-	} else {
-		j.Data["json"] = UserType
-	}
-
-	j.ServeJSON()
 }
 
 //GetStudents - get Administrator by state
@@ -125,6 +101,7 @@ func (j *AdministratorController) PutState() {
 	j.ServeJSON()
 }
 
+/*  REPORTS
 //GetReport - reports Administrator by state
 // @Title GetReport
 // @Description reports Administrator by state
@@ -148,4 +125,6 @@ func (j *AdministratorController) GetReport() {
 	} else {
 		j.Ctx.Output.Body(archi)
 	}
+
 }
+*/

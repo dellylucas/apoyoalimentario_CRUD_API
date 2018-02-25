@@ -8,8 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tealeg/xlsx"
-
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -19,29 +17,6 @@ type ConfigurationOptions struct {
 	Mensajeestudiantes string   `json:"mensajeestudiantes" bson:"mensajeestudiantes"`
 	Moduloactivo       bool     `json:"moduloactivo" bson:"moduloactivo"`
 	Refrigerionocturno []string `json:"refrigerionocturno" bson:"refrigerionocturno"`
-}
-
-//TypeRol - Model of type rol of user
-type TypeRol struct {
-	Rol     string `json:"rol" bson:"rol"`
-	Usuario int    `json:"usuario" bson:"usuario"`
-	Sede    string `json:"sede" bson:"sede"`
-}
-
-//GetTypeUser - Get type user Administrator or checker
-func GetTypeUser(session *mgo.Session, user string) (TypeRol, error) {
-
-	Principal := db.Cursor(session, utility.CollectionAdministrator)
-	defer session.Close()
-	i, _ := strconv.Atoi(user)
-	var InfoUser TypeRol
-
-	err := Principal.Find(bson.M{"usuario": i}).One(&InfoUser)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-	return InfoUser, err
 }
 
 //GetInscription - all records for current semester by Sede
@@ -104,7 +79,7 @@ func UpdateInformationConfig(session *mgo.Session, newInfo ConfigurationOptions)
 //Getname - Get name of student
 func Getname(model []StudentInformation, SedeChecker string) []StudentInformation {
 	var ModelBasic XmlBasic
-	var PruebaGetinfo []StudentInformation
+	var Getinfo []StudentInformation
 	var ModelFacul XmlFaculty
 
 	for fil := range model {
@@ -113,12 +88,13 @@ func Getname(model []StudentInformation, SedeChecker string) []StudentInformatio
 		if strings.Compare(SedeChecker, str) == 0 && len(model[fil].Informacioneconomica) > 0 {
 			utility.GetServiceXML(&ModelBasic, utility.BasicService+model[fil].Codigo)
 			model[fil].Nombre = ModelBasic.Name
-			PruebaGetinfo = append(PruebaGetinfo, model[fil])
+			Getinfo = append(Getinfo, model[fil])
 		}
 	}
-	return PruebaGetinfo
+	return Getinfo
 }
 
+/*  REPORTS
 //Reports - Generate Reports
 func Reports(sa []StudentInformation, SedeChecker string) {
 	var file *xlsx.File
@@ -176,3 +152,4 @@ func Reports(sa []StudentInformation, SedeChecker string) {
 		fmt.Printf(err.Error())
 	}
 }
+*/

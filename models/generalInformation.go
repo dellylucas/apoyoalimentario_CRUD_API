@@ -17,6 +17,15 @@ type StudentInformation struct {
 	Fechainscripcion     time.Time     `json:"ultimafechainscripcion"  bson:"ultimafechainscripcion"`
 	Nombre               string        `json:",omitempty" bson:",omitempty"`
 	Informacioneconomica []Economic    `json:",omitempty" bson:",omitempty"`
+	Localidad            string        `json:",omitempty" bson:",omitempty"`
+	Direccion            string        `json:",omitempty" bson:",omitempty"`
+	TDocument            string        `json:",omitempty" bson:",omitempty"`
+	Document             string        `json:",omitempty" bson:",omitempty"`
+	Facultad             string        `json:",omitempty" bson:",omitempty"`
+	Proyecto             string        `json:",omitempty" bson:",omitempty"`
+	Genero               string        `json:",omitempty" bson:",omitempty"`
+	Semestre             string        `json:",omitempty" bson:",omitempty"`
+	Promedio             string        `json:",omitempty" bson:",omitempty"`
 }
 
 //GetStatus - get status current of student

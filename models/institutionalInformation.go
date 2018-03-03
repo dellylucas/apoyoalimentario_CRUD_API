@@ -6,6 +6,7 @@ import "encoding/xml"
 type XmlFaculty struct {
 	Collection  xml.Name `xml:"infoInstitucionalColleccion"`
 	NameFaculty string   `xml:"infoInstitucional>facultad"`
+	Proyecto    string   `xml:"infoInstitucional>proyecto"`
 }
 
 //XmlMatricula Struct for get value of Enrollment
@@ -24,4 +25,16 @@ type XmlEstado struct {
 type XmlBasic struct {
 	Collection xml.Name `xml:"datosCollection"`
 	Name       string   `xml:"datos>nombre"`
+	Localidad  string   `xml:"datos>localidad"`
+	Direccion  string   `xml:"datos>direccion"`
+	Genero     string   `xml:"datos>genero"`
+	TypeDoc    string   `xml:"datos>tipo_documento"`
+	Document   string   `xml:"datos>numero_documento"`
+}
+
+//XmlAcademic Struct for get name of student
+type XmlAcademic struct {
+	Collection xml.Name `xml:"infoAcademicaCollection"`
+	Semestre   string   `xml:"infoAcademica>semestre"`
+	Promedio   string   `xml:"infoAcademica>promedio"`
 }

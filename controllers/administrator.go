@@ -4,6 +4,9 @@ import (
 	"apoyoalimentario_CRUD_API/db"
 	"apoyoalimentario_CRUD_API/models"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"os"
 
 	"github.com/astaxie/beego"
 )
@@ -101,30 +104,28 @@ func (j *AdministratorController) PutState() {
 	j.ServeJSON()
 }
 
-/*  REPORTS
-//GetReport - reports Administrator by state
+//Post - reports Administrator
 // @Title GetReport
-// @Description reports Administrator by state
-// @Param	state		path 	string	true		"El estado del proceso a consultar"
-// @Param	sede		path 	string	true		"El estado del proceso a consultar"
+// @Description reports Administrator
+// @Param	body		body 	"body for File content"
 // @Success 200 {object} models.Infoapoyo
-// @Failure 403 :state is empty
-// @router /report/:state/:sede [get]
-func (j *AdministratorController) GetReport() {
-	state := j.Ctx.Input.Param(":state")
-	sedeChecker := j.Ctx.Input.Param(":sede")
+// @Failure 403 body is empty
+// @router /report [post]
+func (j *AdministratorController) Post() {
+	var modelReport models.ReportsType
+
+	json.Unmarshal(j.Ctx.Input.RequestBody, &modelReport)
+
 	session, _ := db.GetSession()
-	UserType, err := models.GetInscription(session, state, sedeChecker)
-	models.Reports(UserType, sedeChecker)
-	archi, _ := ioutil.ReadFile(sedeChecker + ".xlsx")
+
+	UserType, err := models.GetInscription(session, "3", modelReport.TSede)
+	models.ReportsAll(UserType, modelReport.NameSheet, modelReport.Columnas)
+	archi, _ := ioutil.ReadFile("tempfile" + ".xlsx")
+	os.Remove("tempfile" + ".xlsx")
 	if err != nil {
 		fmt.Printf(err.Error())
-	}
-	if err != nil {
 		j.Data["json"] = err.Error()
 	} else {
 		j.Ctx.Output.Body(archi)
 	}
-
 }
-*/

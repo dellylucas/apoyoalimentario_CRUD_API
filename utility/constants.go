@@ -14,6 +14,9 @@ const EnrollmentService = "http://jbpm.udistritaloas.edu.co:8280/services/bienes
 //StateService - query URL service the information basic of a student
 const StateService = "http://jbpm.udistritaloas.edu.co:8280/services/bienestarProxy/info_estado/"
 
+//AcademicService - query URL service the information basic of a student
+const AcademicService = "http://jbpm.udistritaloas.edu.co:8280/services/bienestarProxy/info_academica/"
+
 /* URL's for Files Get and post*/
 
 //FileSavePath - URL of address where the files are saved

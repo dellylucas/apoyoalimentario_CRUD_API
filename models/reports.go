@@ -20,10 +20,11 @@ type ReportsType struct {
 
 //MappingColumn Struct for map reports
 type MappingColumn struct {
-	Value  int
-	Key    string
-	Result interface{}
-	Score  string
+	ColumnName string
+	Value      int
+	Key        string
+	Result     interface{}
+	Score      string
 }
 
 //ReportsGeneric - Generate GENERIC Reports dynamic
@@ -50,7 +51,7 @@ func ReportsGeneric(sa []StudentInformation, NameSheet string, column []int) {
 	row = sheet.AddRow()
 	for numdo := range MapingNow {
 		cell = row.AddCell()
-		cell.Value = MapingNow[numdo].Key
+		cell.Value = MapingNow[numdo].ColumnName
 	}
 	// cell document
 
@@ -82,9 +83,9 @@ func ReportGeneral(students []StudentInformation, sede string) {
 	var count int
 	var err error
 	file = xlsx.NewFile()
-	sheet, err = file.AddSheet(sede)
+	sheet, err = file.AddSheet("WEDW")
 	var column []int
-	column = append(column, 2, 26, 27, 34, 30, 31, 1, 33, 32, 3, 19, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 37, 21, 29, 28, 25, 24, 35, 36)
+	column = append(column, 2, 24, 25, 32, 28, 29, 1, 31, 30, 3, 19, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 35, 20, 21, 27, 26, 23, 22, 33, 34)
 	Maping = GEtMappingColumn()
 	for numuno := range column {
 		for num := range Maping {
@@ -98,10 +99,10 @@ func ReportGeneral(students []StudentInformation, sede string) {
 	row = sheet.AddRow()
 	for numdo := range MapingNow {
 		cell = row.AddCell()
-		cell.Value = MapingNow[numdo].Key
+		cell.Value = MapingNow[numdo].ColumnName
 		if strings.Compare(MapingNow[numdo].Score, "Si") == 0 {
 			cell = row.AddCell()
-			cell.Value = "Puntaje"
+			cell.Value = "PUNTAJE " + MapingNow[numdo].ColumnName
 		}
 	}
 	// cell document
@@ -115,7 +116,9 @@ func ReportGeneral(students []StudentInformation, sede string) {
 			cell = row.AddCell()
 			MapingNow[numdo] = MapingBD(students[fil], MapingNow[numdo])
 			if MapingNow[numdo].Result != nil {
-				cell.Value = MapingNow[numdo].Result.(string)
+				var temp string
+				temp = ProcessinData(MapingNow[numdo])
+				cell.Value = temp
 				if strings.Compare(MapingNow[numdo].Score, "Si") == 0 {
 					localcount := 0
 					cell = row.AddCell()
@@ -140,57 +143,55 @@ func ReportGeneral(students []StudentInformation, sede string) {
 /* bonus functions*/
 
 //MakeThing - Construc of model
-func MakeThing(Val int, Keys string) MappingColumn {
-	return MappingColumn{Val, Keys, "", ""}
+func MakeThing(Col string, Val int, Keys string) MappingColumn {
+	return MappingColumn{Col, Val, Keys, "", ""}
 }
 
 //MakeThingD - Construc of model
-func MakeThingD(Val int, Keys string, Score string) MappingColumn {
-	return MappingColumn{Val, Keys, "", Score}
+func MakeThingD(Col string, Val int, Keys string, Score string) MappingColumn {
+	return MappingColumn{Col, Val, Keys, "", Score}
 }
 
 //GEtMappingColumn - Get values Metadata for reports
 func GEtMappingColumn() []MappingColumn {
 	var Global []MappingColumn
 
-	Global = append(Global, MakeThing(1, "Codigo"))
-	Global = append(Global, MakeThing(2, "Fechainscripcion"))
-	Global = append(Global, MakeThingD(3, "Estrato", "Si"))
-	Global = append(Global, MakeThingD(4, "Ingresos", "Si"))
-	Global = append(Global, MakeThingD(5, "SostePropia", "Si"))
-	Global = append(Global, MakeThingD(6, "SosteHogar", "Si"))
-	Global = append(Global, MakeThingD(7, "Nucleofam", "Si"))
-	Global = append(Global, MakeThingD(8, "PersACargo", "Si"))
-	Global = append(Global, MakeThingD(9, "EmpleadArriendo", "Si"))
-	Global = append(Global, MakeThingD(10, "ProvBogota", "Si"))
-	Global = append(Global, MakeThing(11, "Ciudad"))
-	Global = append(Global, MakeThingD(12, "PobEspecial", "Si"))
-	Global = append(Global, MakeThingD(13, "Discapacidad", "Si"))
-	Global = append(Global, MakeThingD(14, "PatAlimenticia", "Si"))
-	Global = append(Global, MakeThing(15, "SerPiloPaga"))
-	Global = append(Global, MakeThing(16, "Sisben"))
-	Global = append(Global, MakeThing(17, "Periodo"))
-	Global = append(Global, MakeThing(18, "Semestre"))
-	Global = append(Global, MakeThingD(19, "Matricula", "Si"))
-	Global = append(Global, MakeThing(20, "EstadoProg"))
-	Global = append(Global, MakeThing(21, "TipoSubsidio"))
-	Global = append(Global, MakeThing(22, "Tipoapoyo"))
-	Global = append(Global, MakeThing(23, "Mensaje"))
-	Global = append(Global, MakeThing(24, "Telefono"))
-	Global = append(Global, MakeThing(25, "Correo"))
-	Global = append(Global, MakeThing(26, "Antiguedad"))
+	Global = append(Global, MakeThing("CODIGO", 1, "Codigo"))
+	Global = append(Global, MakeThing("FECHA DE INSCRIPCION", 2, "Fechainscripcion"))
+	Global = append(Global, MakeThingD("ESTRATO SOCIOECONÓMICO", 3, "Estrato", "Si"))
+	Global = append(Global, MakeThingD("INGRESOS PROPIOS O FAMILIARES", 4, "Ingresos", "Si"))
+	Global = append(Global, MakeThingD("SE SOSTIENE ECONÓMICAMENTE  A SÍ MISMO", 5, "SostePropia", "Si"))
+	Global = append(Global, MakeThingD("SOSTIENE EL HOGAR EN QUE VIVE", 6, "SosteHogar", "Si"))
+	Global = append(Global, MakeThingD("VIVE FUERA DE SU NÚCLEO FAMILIAR", 7, "Nucleofam", "Si"))
+	Global = append(Global, MakeThingD("TIENE PERSONAS A CARGO", 8, "PersACargo", "Si"))
+	Global = append(Global, MakeThingD("VIVE EN CASA DEL EMPLEADOR O PAGA ARRIENDO", 9, "EmpleadArriendo", "Si"))
+	Global = append(Global, MakeThingD("PROVIENE DE CIUDADES O MUNICIPIOS DISTINTOS A BOGOTÁ", 10, "ProvBogota", "Si"))
+	Global = append(Global, MakeThing("CIUDAD O MUNICIPIO", 11, "Ciudad"))
+	Global = append(Global, MakeThingD("ESTÁ CERTIFICADO COMO POBLACIÓN ESPECIAL", 12, "PobEspecial", "Si"))
+	Global = append(Global, MakeThingD("DISCAPACIDAD FÍSICA O MENTAL", 13, "Discapacidad", "Si"))
+	Global = append(Global, MakeThingD("PATOLOGÍA ASOCIADA CON LA NUTRICIÓN", 14, "PatAlimenticia", "Si"))
+	Global = append(Global, MakeThing("SER PILO PAGA", 15, "SerPiloPaga"))
+	Global = append(Global, MakeThing("SISBEN", 16, "Sisben"))
+	Global = append(Global, MakeThing("AÑO", 17, "Periodo"))
+	Global = append(Global, MakeThing("SEMESTRE", 18, "Semestre"))
+	Global = append(Global, MakeThingD("MATRICULA", 19, "Matricula", "Si"))
+	Global = append(Global, MakeThing("TIPO DE SUBSIDIO", 20, "TipoSubsidio"))
+	Global = append(Global, MakeThing("TIPO DE APOYO ALIMENTARIO", 21, "Tipoapoyo"))
+	Global = append(Global, MakeThing("TELEFONO", 22, "Telefono"))
+	Global = append(Global, MakeThing("CORREO", 23, "Correo"))
+	Global = append(Global, MakeThing("ANTIGUEDAD PROGRAMA", 24, "Antiguedad"))
 	/*columns of services*/
-	Global = append(Global, MakeThing(27, "Nombre"))
-	Global = append(Global, MakeThing(28, "Localidad"))
-	Global = append(Global, MakeThing(29, "Direccion"))
-	Global = append(Global, MakeThing(30, "TDocument"))
-	Global = append(Global, MakeThing(31, "Document"))
-	Global = append(Global, MakeThing(32, "Facultad"))
-	Global = append(Global, MakeThing(33, "Proyecto"))
-	Global = append(Global, MakeThing(34, "Genero"))
-	Global = append(Global, MakeThing(35, "Semestre"))
-	Global = append(Global, MakeThing(36, "Promedio"))
-	Global = append(Global, MakeThing(37, "Total"))
+	Global = append(Global, MakeThing("APELLIDOS Y NOMBRES", 25, "Nombre"))
+	Global = append(Global, MakeThing("LOCALIDAD", 26, "Localidad"))
+	Global = append(Global, MakeThing("DIRECCION", 27, "Direccion"))
+	Global = append(Global, MakeThing("TIPO DE DOCUMENTO", 28, "TDocument"))
+	Global = append(Global, MakeThing("NUMERO DE DOCUMENTO", 29, "Document"))
+	Global = append(Global, MakeThing("FACULTAD", 30, "Facultad"))
+	Global = append(Global, MakeThing("PROYECTO CURRICULAR", 31, "Proyecto"))
+	Global = append(Global, MakeThing("GENERO", 32, "Genero"))
+	Global = append(Global, MakeThing("SEMESTRE", 33, "Semestre"))
+	Global = append(Global, MakeThing("PROMEDIO", 34, "Promedio"))
+	Global = append(Global, MakeThing("TOTAL PUNTAJE", 35, "Total"))
 	return Global
 }
 func (f *StudentInformation) reflect(ret string) interface{} {
@@ -337,4 +338,49 @@ func Evaluation(maping MappingColumn) int {
 		}
 	}
 	return i
+}
+
+//ProcessinData  - evaluate bussines rules
+func ProcessinData(data MappingColumn) string {
+	var temp string
+	temp = data.Result.(string)
+	if strings.Compare(data.Key, "Ingresos") == 0 {
+		switch conv, _ := strconv.Atoi(data.Result.(string)); conv {
+		case 1:
+			temp = "0 - 1 SMLV"
+		case 2:
+			temp = "1.1 - 2 SMLV"
+		case 3:
+			temp = "2.1 - 3 SMLV"
+		case 4:
+			temp = "3.1 - 4 SMLV"
+		default:
+			temp = "4.1 SMLV O MAS"
+		}
+	}
+	if strings.Compare(data.Key, "Tipoapoyo") == 0 {
+		switch conv := data.Result.(string); conv {
+		case "A":
+			temp = "ALMUERZO"
+		case "R":
+			temp = "REFRIGERIO"
+		}
+	}
+	if strings.Compare(data.Key, "PobEspecial") == 0 {
+		switch conv := data.Result.(string); conv {
+		case "N":
+			temp = "NINGUNA"
+		case "D":
+			temp = "DESPLAZADO"
+		case "I":
+			temp = "INDIGENA"
+		case "M":
+			temp = "MINORIAS ETNICAS"
+		case "A":
+			temp = "AFRODESCENDIENTE"
+		case "MC":
+			temp = "MADRE CABEZA HOGAR"
+		}
+	}
+	return temp
 }

@@ -276,18 +276,20 @@ func Evaluation(maping MappingColumn) int {
 		}
 	}
 	if strings.Compare(maping.Key, "Ingresos") == 0 {
-		conv, _ := strconv.Atoi(maping.Result.(string))
-		if conv <= 200000 {
+
+		switch conv, _ := strconv.Atoi(maping.Result.(string)); conv {
+		case 1:
+			i = 30
+		case 2:
 			i = 20
-		} else if conv <= 400000 {
-			i = 16
-		} else if conv <= 600000 {
-			i = 12
-		} else if conv <= 800000 {
-			i = 8
-		} else if conv <= 900000 {
-			i = 4
+		case 3:
+			i = 10
+		case 4:
+			i = 5
+		default:
+			i = 0
 		}
+
 	}
 	if strings.Compare(maping.Key, "SostePropia") == 0 {
 		if strings.Compare(maping.Result.(string), "si") == 0 {

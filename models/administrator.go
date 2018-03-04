@@ -17,6 +17,8 @@ type ConfigurationOptions struct {
 	Mensajeestudiantes string   `json:"mensajeestudiantes" bson:"mensajeestudiantes"`
 	Moduloactivo       bool     `json:"moduloactivo" bson:"moduloactivo"`
 	Refrigerionocturno []string `json:"refrigerionocturno" bson:"refrigerionocturno"`
+	Reminder           string   `json:"reminder" bson:"reminder"`
+	Modulomodified     bool     `json:"modulomodified" bson:"modulomodified"`
 }
 
 //GetInscription - all records for current semester by Sede

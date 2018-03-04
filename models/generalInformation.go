@@ -76,6 +76,27 @@ func GetStatus(session *mgo.Session, code string) (state int) {
 		if err != nil {
 			state = -2 //OTHER ERROR EXIT
 		}
+	} else if strings.Compare(StateUniversity.State, "ACTIVO") == 0 && ModuleActive.Modulomodified == true {
+		MainSession := db.Cursor(session, utility.CollectionGeneral)
+		EconomicSession := db.Cursor(session, utility.CollectionEconomic)
+		var InfoGeneral StudentInformation
+		var InfoEconomic Economic
+		err = MainSession.Find(bson.M{"codigo": code}).One(&InfoGeneral)
+		if err != nil {
+			state = 0 //OTHER ERROR EXIT
+		} else {
+			err = EconomicSession.Find(bson.M{"id": InfoGeneral.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEconomic)
+			if err != nil {
+				state = 0 //OTHER ERROR EXIT
+			} else {
+				if InfoEconomic.EstadoProg == 4 {
+					state = 3 // ONLY ModificatioN IN
+				} else {
+					state = -1 //INSCRIPTION EXIT
+				}
+			}
+
+		}
 	} else {
 		state = 0 //INACTIVE USER OR MODULE off --> EXIT
 	}

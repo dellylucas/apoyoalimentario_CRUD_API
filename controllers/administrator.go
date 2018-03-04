@@ -119,9 +119,16 @@ func (j *AdministratorController) Post() {
 	session, _ := db.GetSession()
 
 	UserType, err := models.GetInscription(session, "3", modelReport.TSede)
-	models.ReportsAll(UserType, modelReport.NameSheet, modelReport.Columnas)
-	archi, _ := ioutil.ReadFile("tempfile" + ".xlsx")
-	os.Remove("tempfile" + ".xlsx")
+	//Report Generic
+	if modelReport.TypeReport == 1 {
+		models.ReportsGeneric(UserType, modelReport.NameSheet, modelReport.Columnas)
+	} else if modelReport.TypeReport == 2 {
+		//Report Score
+		models.ReportGeneral(UserType, modelReport.TSede)
+	}
+
+	archi, _ := ioutil.ReadFile("tempfile.xlsx")
+	os.Remove("tempfile.xlsx")
 	if err != nil {
 		fmt.Printf(err.Error())
 		j.Data["json"] = err.Error()

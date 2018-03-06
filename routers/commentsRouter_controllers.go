@@ -79,6 +79,38 @@ func init() {
 			MethodParams: param.Make(),
 			Params: nil})
 
+	beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:EmailController"] = append(beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:EmailController"],
+		beego.ControllerComments{
+			Method: "GetConfig",
+			Router: `/`,
+			AllowHTTPMethods: []string{"get"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:EmailController"] = append(beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:EmailController"],
+		beego.ControllerComments{
+			Method: "PutConfig",
+			Router: `/`,
+			AllowHTTPMethods: []string{"put"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:EmailController"] = append(beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:EmailController"],
+		beego.ControllerComments{
+			Method: "PutEmail",
+			Router: `/send`,
+			AllowHTTPMethods: []string{"put"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:EmailController"] = append(beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:EmailController"],
+		beego.ControllerComments{
+			Method: "TestEmail",
+			Router: `/test`,
+			AllowHTTPMethods: []string{"put"},
+			MethodParams: param.Make(),
+			Params: nil})
+
 	beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:FileController"] = append(beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:FileController"],
 		beego.ControllerComments{
 			Method: "Post",

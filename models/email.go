@@ -13,7 +13,7 @@ import (
 
 //Email - Model of email to send
 type Email struct {
-	Name        string `json:"name" bson:"name"`
+	Name        string `json:"name,omitempty" bson:"name,omitempty"`
 	Server      string `json:"server" bson:"server"`
 	Port        int    `json:"port" bson:"port"`
 	SecuritySSL bool   `json:"securitySSL" bson:"securitySSL"`
@@ -86,6 +86,16 @@ func TestConnection(Info Email) error {
 	}
 
 	_, err := d.Dial()
+
+	return err
+}
+
+//UpdateEmailConfig - Update the information email
+func UpdateEmailConfig(session *mgo.Session, newInfo Email) error {
+	BDMessage := db.Cursor(session, utility.CollectionAdministrator)
+	newInfo.Name = "email"
+	defer session.Close()
+	err := BDMessage.Update(bson.M{"name": "email"}, &newInfo)
 
 	return err
 }

@@ -40,12 +40,12 @@ func (j *EmailController) GetConfig() {
 // @router / [put]
 func (j *EmailController) PutConfig() {
 
-	var InfoConfig models.ConfigurationOptions
+	var InfoConfig models.Email
 	resul := "success"
 	json.Unmarshal(j.Ctx.Input.RequestBody, &InfoConfig)
 	session, _ := db.GetSession()
 
-	erro := models.UpdateInformationConfig(session, InfoConfig)
+	erro := models.UpdateEmailConfig(session, InfoConfig)
 
 	if erro != nil {
 		resul = erro.Error()

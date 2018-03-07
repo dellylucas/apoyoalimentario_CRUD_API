@@ -5,7 +5,6 @@ import (
 	"apoyoalimentario_CRUD_API/utility"
 	"crypto/tls"
 	"fmt"
-	"log"
 
 	gomail "gopkg.in/gomail.v2"
 	mgo "gopkg.in/mgo.v2"
@@ -27,9 +26,9 @@ type Email struct {
 
 //BodyEmail - body to send
 type BodyEmail struct {
-	EBody   string
-	EtoSend string
-	EName   string
+	EBody   string `json:"eBody" bson:"eBody"`
+	EtoSend string `json:"etoSend" bson:"etoSend"`
+	EName   string `json:"eName" bson:"eName"`
 }
 
 //SearchInfor - get configuration of email
@@ -48,35 +47,28 @@ func EmailSender(Bod BodyEmail, session *mgo.Session) error {
 	var Info Email
 	MainSession := db.Cursor(session, utility.CollectionAdministrator)
 	err := MainSession.Find(bson.M{"name": "email"}).One(&Info)
-	if err != nil {
-		panic(err)
-	}
-	// "smtp.gmail.com", 465, ssl y tls
-	d := gomail.NewDialer(Info.Server, Info.Port, Info.EmailCon, Info.Pass)
+	if err == nil {
+		// "smtp.gmail.com", 465, ssl y tls
+		d := gomail.NewDialer(Info.Server, Info.Port, Info.EmailCon, Info.Pass)
 
-	if Info.SecuritySSL == true {
-		d.SSL = true
-	}
-	if Info.SecurityTLS == true {
-		d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
-	}
+		if Info.SecuritySSL == true {
+			d.SSL = true
+		}
+		if Info.SecurityTLS == true {
+			d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+		}
 
-	s, err := d.Dial()
-	if err != nil {
-		panic(err)
-		log.Printf("Could not send email to %q: %v", Info.EmailCon, err)
+		s, err := d.Dial()
+		if err == nil {
+			m := gomail.NewMessage()
+			m.SetHeader("From", Info.EmailCon)
+			m.SetAddressHeader("To", Bod.EtoSend, Bod.EName)
+			m.SetHeader("Subject", Info.Subject)
+			m.SetBody("text/html", fmt.Sprintf(Info.Text+Bod.EBody))
+			err = gomail.Send(s, m)
+			m.Reset()
+		}
 	}
-
-	m := gomail.NewMessage()
-	m.SetHeader("From", Info.EmailCon)
-	m.SetAddressHeader("To", Bod.EtoSend, Bod.EName)
-	m.SetHeader("Subject", Info.Subject)
-	m.SetBody("text/html", fmt.Sprintf(Info.Text+Bod.EBody))
-
-	if err := gomail.Send(s, m); err != nil {
-		log.Printf("Could not send email to %q: %v", Info.EmailCon, err)
-	}
-	m.Reset()
 
 	return err
 }
@@ -94,10 +86,6 @@ func TestConnection(Info Email) error {
 	}
 
 	_, err := d.Dial()
-	if err != nil {
-		panic(err)
-		log.Printf("Could not send email to %q: %v", Info.EmailCon, err)
-	}
 
 	return err
 }

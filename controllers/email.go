@@ -4,7 +4,6 @@ import (
 	"apoyoalimentario_CRUD_API/db"
 	"apoyoalimentario_CRUD_API/models"
 	"encoding/json"
-	"fmt"
 
 	"github.com/astaxie/beego"
 )
@@ -56,7 +55,7 @@ func (j *EmailController) PutConfig() {
 	j.ServeJSON()
 }
 
-//PutEmail - email sender
+//PutEmail - email send
 // @Title PutEmail
 // @Description update the Infoapoyo
 // @Param	code		path 	string	true		"The code you want to update"
@@ -72,12 +71,9 @@ func (j *EmailController) PutEmail() {
 	j.Data["json"] = "ok"
 	defer session.Close()
 	if err != nil {
-		fmt.Printf(err.Error())
-		j.Data["json"] = err.Error()
-	} else {
-		j.ServeJSON()
+		j.Data["json"] = "error"
 	}
-
+	j.ServeJSON()
 }
 
 //TestEmail - Test email
@@ -92,12 +88,9 @@ func (j *EmailController) TestEmail() {
 	json.Unmarshal(j.Ctx.Input.RequestBody, &TestToSend)
 	err := models.TestConnection(TestToSend)
 
-	j.Data["json"] = "ok"
+	j.Data["json"] = "Connection success!"
 	if err != nil {
-		fmt.Printf(err.Error())
-		j.Data["json"] = err.Error()
-	} else {
-		j.ServeJSON()
+		j.Data["json"] = "ERROR:  " + err.Error()
 	}
-
+	j.ServeJSON()
 }

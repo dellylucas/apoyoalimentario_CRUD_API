@@ -47,6 +47,30 @@ func init() {
 			MethodParams: param.Make(),
 			Params: nil})
 
+	beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:AdministratorController"] = append(beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:AdministratorController"],
+		beego.ControllerComments{
+			Method: "GetVerif",
+			Router: `/verifier`,
+			AllowHTTPMethods: []string{"get"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:AdministratorController"] = append(beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:AdministratorController"],
+		beego.ControllerComments{
+			Method: "PutVerif",
+			Router: `/verifier`,
+			AllowHTTPMethods: []string{"put"},
+			MethodParams: param.Make(),
+			Params: nil})
+
+	beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:AdministratorController"] = append(beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:AdministratorController"],
+		beego.ControllerComments{
+			Method: "Getsede",
+			Router: `/verifier/:name`,
+			AllowHTTPMethods: []string{"get"},
+			MethodParams: param.Make(),
+			Params: nil})
+
 	beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:EconomicController"] = append(beego.GlobalControllerRouter["apoyoalimentario_CRUD_API/controllers:EconomicController"],
 		beego.ControllerComments{
 			Method: "Get",

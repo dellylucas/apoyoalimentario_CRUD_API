@@ -136,3 +136,68 @@ func (j *AdministratorController) Post() {
 		j.Ctx.Output.Body(archi)
 	}
 }
+
+/*Verificador*/
+
+//GetVerif - get configuration Administrator
+// @Title GetVerif
+// @Description get configuration verifier
+// @Success 200 {string}
+// @router /verifier [get]
+func (j *AdministratorController) GetVerif() {
+	session, _ := db.GetSession()
+
+	SedeVerif, err := models.GetVerifier(session)
+
+	if err != nil {
+		j.Data["json"] = err.Error()
+	} else {
+		j.Data["json"] = SedeVerif
+	}
+
+	j.ServeJSON()
+}
+
+//PutVerif - update the verifier
+// @Title PutVerif
+// @Description update the Infoapoyo
+// @Param	code		path 	string	true		"The code you want to update"
+// @Success 200 {object} models.Object
+// @router /verifier [put]
+func (j *AdministratorController) PutVerif() {
+
+	var InfoVerif []models.Sede
+
+	json.Unmarshal(j.Ctx.Input.RequestBody, &InfoVerif)
+	session, _ := db.GetSession()
+	err := models.UpdateVerifier(session, InfoVerif)
+	if err != nil {
+		j.Data["json"] = err.Error()
+	} else {
+		j.Data["json"] = "ok"
+	}
+	defer session.Close()
+	j.ServeJSON()
+}
+
+//Getsede - get configuration Administrator
+// @Title Getsede
+// @Description get configuration verifier
+// @Param	name		path 	string	true		"El estado del proceso a consultar"
+// @Success 200 {string}
+// @Failure 403 :name is empty
+// @router /verifier/:name [get]
+func (j *AdministratorController) Getsede() {
+	name := j.Ctx.Input.Param(":name")
+	session, _ := db.GetSession()
+
+	SedeVerif, err := models.GetSede(session, name)
+
+	if err != nil {
+		j.Data["json"] = err.Error()
+	} else {
+		j.Data["json"] = SedeVerif
+	}
+
+	j.ServeJSON()
+}

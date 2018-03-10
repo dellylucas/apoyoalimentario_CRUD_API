@@ -91,7 +91,20 @@ func GetStatus(session *mgo.Session, code string) (state int) {
 				state = 0 //OTHER ERROR EXIT
 			} else {
 				if InfoEconomic.EstadoProg == 4 {
-					state = 3 // ONLY ModificatioN IN
+					var FacultadName XmlFaculty
+					count := 0
+					utility.GetServiceXML(&FacultadName, utility.FacultyService+code)
+					for _, element := range ModuleActive.Refrigerionocturno {
+						str := strings.Replace(FacultadName.NameFaculty, "/", "-", -1)
+						if element == str {
+							count = 1
+						}
+					}
+					if count == 1 {
+						state = 2 //ACCES OK almuerzo y refrigerio
+					} else {
+						state = 1 //ACCES OK almuerzo
+					} // ONLY ModificatioN IN
 				} else {
 					state = -1 //INSCRIPTION EXIT
 				}

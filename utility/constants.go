@@ -23,7 +23,7 @@ const AcademicService = "http://jbpm.udistritaloas.edu.co:8280/services/bienesta
 const FileSavePath = "C:\\xampp\\htdocs\\Tempfiles\\"
 
 //ServerPath - URL of server where save files
-const ServerPath = "http://localhost:80/Tempfiles/"
+const ServerPath = "http://192.168.1.43:80/Tempfiles/"
 
 /* Collections of Data Base*/
 

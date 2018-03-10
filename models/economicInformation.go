@@ -38,6 +38,7 @@ type Economic struct {
 	Telefono        string        `json:"telefono" bson:"telefono"`
 	Correo          string        `json:"correo" bson:"correo"`
 	Antiguedad      string        `json:"antiguedad" bson:"antiguedad"`
+	Verificadopor   string        `json:"verificadopor" bson:"verificadopor"`
 }
 
 //GetInformationEconomic - get information economic current semester by code
@@ -203,6 +204,7 @@ func Rescueinf(newI Economic, old Economic) ([]string, Economic) {
 func VerificatorUpdate(newI Economic, old Economic) Economic {
 
 	old.EstadoProg = newI.EstadoProg
+	old.Verificadopor = newI.Verificadopor
 	if strings.Compare(newI.Mensaje, "") != 0 {
 		old.Mensaje = newI.Mensaje
 	}

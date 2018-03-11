@@ -277,17 +277,16 @@ func Evaluation(maping MappingColumn) int {
 		}
 	}
 	if strings.Compare(maping.Key, "Ingresos") == 0 {
-
-		switch conv, _ := strconv.Atoi(maping.Result.(string)); conv {
-		case 1:
+		conv, _ := strconv.Atoi(maping.Result.(string))
+		if conv <= 781242 {
 			i = 30
-		case 2:
+		} else if conv <= 781242*2 {
 			i = 20
-		case 3:
+		} else if conv <= 781242*3 {
 			i = 10
-		case 4:
+		} else if conv <= 781242*4 {
 			i = 5
-		default:
+		} else {
 			i = 0
 		}
 

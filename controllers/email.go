@@ -41,7 +41,7 @@ func (j *EmailController) GetConfig() {
 func (j *EmailController) PutConfig() {
 
 	var InfoConfig models.Email
-	resul := "success"
+	resul := "Cambios guardados!"
 	json.Unmarshal(j.Ctx.Input.RequestBody, &InfoConfig)
 	session, _ := db.GetSession()
 
@@ -88,7 +88,7 @@ func (j *EmailController) TestEmail() {
 	json.Unmarshal(j.Ctx.Input.RequestBody, &TestToSend)
 	err := models.TestConnection(TestToSend)
 
-	j.Data["json"] = "Connection success!"
+	j.Data["json"] = "Conexion exitosa!"
 	if err != nil {
 		j.Data["json"] = "ERROR:  " + err.Error()
 	}

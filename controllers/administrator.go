@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"os"
 
 	"github.com/astaxie/beego"
 )
@@ -66,7 +65,7 @@ func (j *AdministratorController) GetConfig() {
 func (j *AdministratorController) PutConfig() {
 
 	var InfoConfig models.ConfigurationOptions
-	resul := "success"
+	resul := "Cambios guardados!"
 	json.Unmarshal(j.Ctx.Input.RequestBody, &InfoConfig)
 	session, _ := db.GetSession()
 
@@ -128,7 +127,7 @@ func (j *AdministratorController) Post() {
 	}
 
 	archi, _ := ioutil.ReadFile("tempfile.xlsx")
-	os.Remove("tempfile.xlsx")
+	//os.Remove("tempfile.xlsx")
 	if err != nil {
 		fmt.Printf(err.Error())
 		j.Data["json"] = err.Error()

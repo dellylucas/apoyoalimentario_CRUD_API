@@ -154,7 +154,7 @@ func TemplatenewEcon(j Economic, id bson.ObjectId, cod string) Economic {
 	j.ID = bson.NewObjectId()
 	j.Idc = id
 	j.Periodo = time.Now().UTC().Year()
-	j.Semestre = utility.Semester()
+	j.SemestreIns = utility.Semester()
 	j.Matricula = v.Value
 	j.TipoSubsidio = "na"
 	return j

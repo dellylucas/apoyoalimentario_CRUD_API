@@ -62,7 +62,9 @@ func ReportsGeneric(sa []StudentInformation, NameSheet string, column []int) {
 			cell = row.AddCell()
 			MapingNow[numdo] = MapingBD(sa[fil], MapingNow[numdo])
 			if MapingNow[numdo].Result != nil {
-				cell.Value = MapingNow[numdo].Result.(string)
+				var temp string
+				temp = ProcessinData(MapingNow[numdo])
+				cell.Value = temp
 			}
 		}
 	}
@@ -74,7 +76,7 @@ func ReportsGeneric(sa []StudentInformation, NameSheet string, column []int) {
 }
 
 //ReportGeneral - Generate Reports students
-func ReportGeneral(students []StudentInformation, sede string) {
+func ReportGeneral(students []StudentInformation, name string) {
 	var file *xlsx.File
 	var sheet *xlsx.Sheet
 	var row *xlsx.Row
@@ -83,7 +85,7 @@ func ReportGeneral(students []StudentInformation, sede string) {
 	var count int
 	var err error
 	file = xlsx.NewFile()
-	sheet, err = file.AddSheet("WEDW")
+	sheet, err = file.AddSheet(name)
 	var column []int
 	column = append(column, 2, 24, 25, 32, 28, 29, 1, 31, 30, 3, 19, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 35, 20, 21, 27, 26, 23, 22, 33, 34)
 	Maping = GEtMappingColumn()
@@ -173,7 +175,7 @@ func GEtMappingColumn() []MappingColumn {
 	Global = append(Global, MakeThing("SER PILO PAGA", 15, "SerPiloPaga"))
 	Global = append(Global, MakeThing("SISBEN", 16, "Sisben"))
 	Global = append(Global, MakeThing("AÑO", 17, "Periodo"))
-	Global = append(Global, MakeThing("SEMESTRE", 18, "Semestre"))
+	Global = append(Global, MakeThing("SEMESTRE", 18, "SemestreIns"))
 	Global = append(Global, MakeThingD("MATRICULA", 19, "Matricula", "Si"))
 	Global = append(Global, MakeThing("TIPO DE SUBSIDIO", 20, "TipoSubsidio"))
 	Global = append(Global, MakeThing("TIPO DE APOYO ALIMENTARIO", 21, "Tipoapoyo"))
@@ -197,11 +199,15 @@ func GEtMappingColumn() []MappingColumn {
 func (f *StudentInformation) reflect(ret string) interface{} {
 	val := reflect.ValueOf(f).Elem()
 	var res interface{}
+	res = nil
 	for i := 0; i < val.NumField(); i++ {
 		valueField := val.Field(i)
 		typeField := val.Type().Field(i)
 		if strings.Compare(typeField.Type.String(), "[]models.Economic") == 0 {
 			res = fmt.Sprintf("%v", f.Informacioneconomica[0].reflectEcono(ret))
+			if res != "<nil>" {
+				break
+			}
 		} else {
 			if strings.Compare(ret, typeField.Name) == 0 {
 				res = fmt.Sprintf("%v", valueField.Interface())
@@ -215,6 +221,7 @@ func (f *StudentInformation) reflect(ret string) interface{} {
 func (f *Economic) reflectEcono(ret string) interface{} {
 	val := reflect.ValueOf(f).Elem()
 	var res interface{}
+	res = nil
 	for i := 0; i < val.NumField(); i++ {
 		valueField := val.Field(i)
 		typeField := val.Type().Field(i)
@@ -343,20 +350,7 @@ func Evaluation(maping MappingColumn) int {
 func ProcessinData(data MappingColumn) string {
 	var temp string
 	temp = data.Result.(string)
-	if strings.Compare(data.Key, "Ingresos") == 0 {
-		switch conv, _ := strconv.Atoi(data.Result.(string)); conv {
-		case 1:
-			temp = "0 - 1 SMLV"
-		case 2:
-			temp = "1.1 - 2 SMLV"
-		case 3:
-			temp = "2.1 - 3 SMLV"
-		case 4:
-			temp = "3.1 - 4 SMLV"
-		default:
-			temp = "4.1 SMLV O MAS"
-		}
-	}
+
 	if strings.Compare(data.Key, "Tipoapoyo") == 0 {
 		switch conv := data.Result.(string); conv {
 		case "A":

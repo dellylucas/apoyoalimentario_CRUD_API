@@ -123,7 +123,7 @@ func (j *AdministratorController) Post() {
 		models.ReportsGeneric(UserType, modelReport.NameSheet, modelReport.Columnas)
 	} else if modelReport.TypeReport == 2 {
 		//Report Score
-		models.ReportGeneral(UserType, modelReport.TSede)
+		models.ReportGeneral(UserType, modelReport.NameSheet)
 	}
 
 	archi, _ := ioutil.ReadFile("tempfile.xlsx")

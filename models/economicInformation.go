@@ -29,7 +29,7 @@ type Economic struct {
 	SerPiloPaga     string        `json:"serpilopaga" bson:"serpilopaga"`
 	Sisben          string        `json:"sisben" bson:"sisben"`
 	Periodo         int           `json:"periodo" bson:"periodo"`
-	Semestre        int           `json:"semestre" bson:"semestre"`
+	SemestreIns     int           `json:"semestre" bson:"semestre"`
 	Matricula       int           `json:"matricula" bson:"matricula"`
 	EstadoProg      int           `json:"estadoprograma" bson:"estadoprograma"`
 	TipoSubsidio    string        `json:"tiposubsidio" bson:"tiposubsidio"`

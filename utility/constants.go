@@ -25,6 +25,9 @@ const FileSavePath = "C:\\xampp\\htdocs\\Tempfiles\\"
 //ServerPath - URL of server where save files
 const ServerPath = "http://192.168.1.43:80/Tempfiles/"
 
+//RulerPath - MID-API Path - URL of server
+const RulerPath = "http://localhost:8090/v1/resultado/"
+
 /* Collections of Data Base*/
 
 //CollectionHistoricFiles - Name of Collection of DB of History of Files

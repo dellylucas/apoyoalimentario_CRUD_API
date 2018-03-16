@@ -1,11 +1,16 @@
 package utility
 
 import (
+	"bytes"
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
+
+	"github.com/astaxie/beego"
 )
 
 //Semester - calculates current semester
@@ -57,6 +62,23 @@ func GetInitEnd() (fromDate time.Time, toDate time.Time) {
 	return fromDate, toDate
 }
 
+//SendJsonToRuler - send Ruler
+func SendJsonToRuler(url string, trequest string, datajson interface{}) (string, error) {
+	b := new(bytes.Buffer)
+	if datajson != nil {
+		json.NewEncoder(b).Encode(datajson)
+	}
+	client := &http.Client{}
+	req, err := http.NewRequest(trequest, url, b)
+	r, err := client.Do(req)
+	if err != nil {
+		beego.Error("error", err)
+		return "na", err
+	}
+	defer r.Body.Close()
+	contents, err := ioutil.ReadAll(r.Body)
+	return strings.Replace(string(contents), "\"", "", -1), err
+}
 
 // //Getipaddres - returns the current ip server of api
 // func Getipaddres() net.IP {

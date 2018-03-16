@@ -128,11 +128,14 @@ func UpdateState(session *mgo.Session, cod string) error {
 	errd = MainSession.Update(bson.M{"codigo": cod}, &UpdateDate)
 
 	err := EconomicSession.Find(bson.M{"id": InfoGeneralU.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcoOldU)
-	UpdateS := LastState(InfoEcoOldU)
+	var ResultRuler string
+	ResultRuler, _ = utility.SendJsonToRuler(utility.RulerPath, "PUT", InfoEcoOldU)
+	UpdateS := LastState(InfoEcoOldU, ResultRuler)
 	err = EconomicSession.Update(bson.M{"id": InfoGeneralU.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}, &UpdateS)
 	if err != nil {
 		panic(errd)
 	}
+
 	return err
 }
 
@@ -169,8 +172,14 @@ func LastDate(old StudentInformation) StudentInformation {
 }
 
 //LastState - Update Information economic empty
-func LastState(old Economic) Economic {
-	old.EstadoProg = 1
+func LastState(old Economic, Ruler string) Economic {
+	if strings.Compare(Ruler, "") == 0 {
+		old.EstadoProg = 1
+	} else {
+		old.EstadoProg = 2
+	}
+
+	old.TipoSubsidio = Ruler
 	if strings.Compare(old.Ciudad, "") == 0 {
 		old.Ciudad = "bogota"
 	}

@@ -3,6 +3,7 @@ package models
 import (
 	"apoyoalimentario_CRUD_API/db"
 	"apoyoalimentario_CRUD_API/utility"
+	"strconv"
 	"strings"
 	"time"
 
@@ -121,16 +122,23 @@ func GetStatus(session *mgo.Session, code string) (state int) {
 func UpdateState(session *mgo.Session, cod string) error {
 	MainSession := db.Cursor(session, utility.CollectionGeneral)
 	EconomicSession := db.Cursor(session, utility.CollectionEconomic)
+	BDSMLV := db.Cursor(session, utility.CollectionAdministrator)
+
+	var salario ConfigurationOptions
+	err := BDSMLV.Find(nil).One(&salario)
 	var InfoGeneralU StudentInformation
 	var InfoEcoOldU Economic
 	errd := MainSession.Find(bson.M{"codigo": cod}).One(&InfoGeneralU)
 	UpdateDate := LastDate(InfoGeneralU)
 	errd = MainSession.Update(bson.M{"codigo": cod}, &UpdateDate)
 
-	err := EconomicSession.Find(bson.M{"id": InfoGeneralU.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcoOldU)
+	err = EconomicSession.Find(bson.M{"id": InfoGeneralU.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcoOldU)
 	var ResultRuler string
-	ResultRuler, _ = utility.SendJsonToRuler(utility.RulerPath, "PUT", InfoEcoOldU)
-	UpdateS := LastState(InfoEcoOldU, ResultRuler)
+	UpdateS := LastState(InfoEcoOldU)
+	UpdateS.Salario = strconv.Itoa(salario.Salariominimo)
+	ResultRuler, _ = utility.SendJsonToRuler(utility.RulerPath, "PUT", UpdateS)
+	UpdateS = PostRules(UpdateS, ResultRuler)
+	UpdateS.Salario = ""
 	err = EconomicSession.Update(bson.M{"id": InfoGeneralU.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}, &UpdateS)
 	if err != nil {
 		panic(errd)
@@ -172,19 +180,27 @@ func LastDate(old StudentInformation) StudentInformation {
 }
 
 //LastState - Update Information economic empty
-func LastState(old Economic, Ruler string) Economic {
-	if strings.Compare(Ruler, "") == 0 {
-		old.EstadoProg = 1
-	} else {
-		old.EstadoProg = 2
-	}
+func LastState(old Economic) Economic {
 
-	old.TipoSubsidio = Ruler
+	old.EstadoProg = 1
+
 	if strings.Compare(old.Ciudad, "") == 0 {
 		old.Ciudad = "bogota"
 	}
 	if strings.Compare(old.Tipoapoyo, "") == 0 {
 		old.Tipoapoyo = "A"
 	}
+	return old
+}
+
+//PostRules - Update Information economic empty
+func PostRules(old Economic, Ruler string) Economic {
+	if strings.Compare(Ruler, "") == 0 {
+		old.EstadoProg = 0
+	} else {
+		old.EstadoProg = 2
+	}
+	old.TipoSubsidio = Ruler
+
 	return old
 }

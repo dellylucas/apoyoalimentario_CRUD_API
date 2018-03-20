@@ -39,6 +39,7 @@ type Economic struct {
 	Correo          string        `json:"correo" bson:"correo"`
 	Antiguedad      string        `json:"antiguedad" bson:"antiguedad"`
 	Verificadopor   string        `json:"verificadopor" bson:"verificadopor"`
+	Salario         string        `json:",omitempty" bson:",omitempty"`
 }
 
 //GetInformationEconomic - get information economic current semester by code

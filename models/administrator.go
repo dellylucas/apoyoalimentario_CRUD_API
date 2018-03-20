@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -19,10 +18,11 @@ type ConfigurationOptions struct {
 	Refrigerionocturno []string `json:"refrigerionocturno" bson:"refrigerionocturno"`
 	Reminder           string   `json:"reminder" bson:"reminder"`
 	Modulomodified     bool     `json:"modulomodified" bson:"modulomodified"`
+	Salariominimo      int      `json:"salariominimo" bson:"salariominimo"`
 }
 
 //GetInscription - all records for current semester by Sede
-func GetInscription(session *mgo.Session, State string, SedeChecker string) ([]StudentInformation, error) {
+func GetInscription(session *mgo.Session, State string, model ReportsType) ([]StudentInformation, error) {
 
 	MainSession := db.Cursor(session, utility.CollectionGeneral)
 	i, _ := strconv.Atoi(State)
@@ -38,8 +38,8 @@ func GetInscription(session *mgo.Session, State string, SedeChecker string) ([]S
 				"pipeline": []bson.M{
 					{
 						"$match": bson.M{"estadoprograma": i,
-							"periodo":  time.Now().UTC().Year(),
-							"semestre": utility.Semester(),
+							"periodo":  model.Periodo,
+							"semestre": model.Semestre,
 							"$expr": bson.M{
 								"$eq": []string{"$$general_id", "$id"},
 							}},
@@ -47,8 +47,8 @@ func GetInscription(session *mgo.Session, State string, SedeChecker string) ([]S
 				"as": "informacioneconomica",
 			}}}
 	err := MainSession.Pipe(query).All(&InfoGeneralComplete)
-	if strings.Compare(SedeChecker, "ALL") != 0 {
-		InfoGeneralComplete = Getname(InfoGeneralComplete, SedeChecker)
+	if strings.Compare(model.TSede, "ALL") != 0 {
+		InfoGeneralComplete = Getname(InfoGeneralComplete, model.TSede)
 	}
 	if err != nil {
 		fmt.Println(err)

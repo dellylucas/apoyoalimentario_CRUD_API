@@ -3,9 +3,11 @@ package controllers
 import (
 	"apoyoalimentario_CRUD_API/db"
 	"apoyoalimentario_CRUD_API/models"
+	"apoyoalimentario_CRUD_API/utility"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"time"
 
 	"github.com/astaxie/beego"
 )
@@ -24,10 +26,13 @@ type AdministratorController struct {
 // @Failure 403 :state is empty
 // @router /:state/:sede [get]
 func (j *AdministratorController) GetStudents() {
+	var modellist models.ReportsType
 	state := j.Ctx.Input.Param(":state")
-	sedeChecker := j.Ctx.Input.Param(":sede")
+	modellist.TSede = j.Ctx.Input.Param(":sede")
+	modellist.Periodo = time.Now().UTC().Year()
+	modellist.Semestre = utility.Semester()
 	session, _ := db.GetSession()
-	UserType, err := models.GetInscription(session, state, sedeChecker)
+	UserType, err := models.GetInscription(session, state, modellist)
 	if err != nil {
 		j.Data["json"] = err.Error()
 	} else {
@@ -117,7 +122,7 @@ func (j *AdministratorController) Post() {
 
 	session, _ := db.GetSession()
 
-	UserType, err := models.GetInscription(session, "3", modelReport.TSede)
+	UserType, err := models.GetInscription(session, "3", modelReport)
 	//Report Generic
 	if modelReport.TypeReport == 1 {
 		models.ReportsGeneric(UserType, modelReport.NameSheet, modelReport.Columnas)

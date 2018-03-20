@@ -64,7 +64,7 @@ func EmailSender(Bod BodyEmail, session *mgo.Session) error {
 			m.SetHeader("From", Info.EmailCon)
 			m.SetAddressHeader("To", Bod.EtoSend, Bod.EName)
 			m.SetHeader("Subject", Info.Subject)
-			m.SetBody("text/html", fmt.Sprintf(Info.Text+Bod.EBody))
+			m.SetBody("text/html", fmt.Sprintf(Bod.EBody+"<br><br> <strong>"+Info.Text+"</strong>"))
 			err = gomail.Send(s, m)
 			m.Reset()
 		}

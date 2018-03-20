@@ -26,7 +26,7 @@ const FileSavePath = "C:\\xampp\\htdocs\\Tempfiles\\"
 const ServerPath = "http://192.168.1.43:80/Tempfiles/"
 
 //RulerPath - MID-API Path - URL of server
-const RulerPath = "http://localhost:8090/v1/resultado/"
+const RulerPath = "http://192.168.1.43:8090/v1/resultado/"
 
 /* Collections of Data Base*/
 

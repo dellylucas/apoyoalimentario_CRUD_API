@@ -1,6 +1,7 @@
 package models
 
 import (
+	"apoyoalimentario_CRUD_API/db"
 	"apoyoalimentario_CRUD_API/utility"
 	"fmt"
 	"reflect"
@@ -16,6 +17,8 @@ type ReportsType struct {
 	TSede      string `json:"tsede" bson:"tsede"`
 	NameSheet  string `json:"nameSheet" bson:"nameSheet"`
 	TypeReport int    `json:"typeReport" bson:"typeReport"`
+	Periodo    int    `json:"periodo" bson:"periodo"`
+	Semestre   int    `json:"semestre" bson:"semestre"`
 }
 
 //MappingColumn Struct for map reports
@@ -77,17 +80,20 @@ func ReportsGeneric(sa []StudentInformation, NameSheet string, column []int) {
 
 //ReportGeneral - Generate Reports students
 func ReportGeneral(students []StudentInformation, name string) {
+	session, _ := db.GetSession()
+	BDSMLV := db.Cursor(session, utility.CollectionAdministrator)
+	var salario ConfigurationOptions
+	err := BDSMLV.Find(nil).One(&salario)
 	var file *xlsx.File
 	var sheet *xlsx.Sheet
 	var row *xlsx.Row
 	var Maping []MappingColumn
 	var MapingNow []MappingColumn
 	var count int
-	var err error
 	file = xlsx.NewFile()
 	sheet, err = file.AddSheet(name)
 	var column []int
-	column = append(column, 2, 24, 25, 32, 28, 29, 1, 31, 30, 3, 19, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 35, 20, 21, 27, 26, 23, 22, 33, 34)
+	column = append(column, 2, 24, 25, 32, 28, 29, 1, 31, 30, 3, 19, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 35, 20, 21, 27, 26, 23, 22, 33, 34, 15, 16)
 	Maping = GEtMappingColumn()
 	for numuno := range column {
 		for num := range Maping {
@@ -124,7 +130,7 @@ func ReportGeneral(students []StudentInformation, name string) {
 				if strings.Compare(MapingNow[numdo].Score, "Si") == 0 {
 					localcount := 0
 					cell = row.AddCell()
-					localcount = Evaluation(MapingNow[numdo])
+					localcount = Evaluation(MapingNow[numdo], salario.Salariominimo)
 					count += localcount
 					cell.Value = strconv.Itoa(localcount)
 				}
@@ -140,6 +146,7 @@ func ReportGeneral(students []StudentInformation, name string) {
 	if err != nil {
 		fmt.Printf(err.Error())
 	}
+	defer session.Close()
 }
 
 /* bonus functions*/
@@ -261,7 +268,7 @@ func RescueInformation(sa StudentInformation) StudentInformation {
 }
 
 //Evaluation  - evaluate bussines rules
-func Evaluation(maping MappingColumn) int {
+func Evaluation(maping MappingColumn, salario int) int {
 	i := 0
 	if strings.Compare(maping.Key, "Estrato") == 0 {
 		conv, _ := strconv.Atoi(maping.Result.(string))
@@ -285,13 +292,13 @@ func Evaluation(maping MappingColumn) int {
 	}
 	if strings.Compare(maping.Key, "Ingresos") == 0 {
 		conv, _ := strconv.Atoi(maping.Result.(string))
-		if conv <= 781242 {
+		if conv <= salario {
 			i = 30
-		} else if conv <= 781242*2 {
+		} else if conv <= salario*2 {
 			i = 20
-		} else if conv <= 781242*3 {
+		} else if conv <= salario*3 {
 			i = 10
-		} else if conv <= 781242*4 {
+		} else if conv <= salario*4 {
 			i = 5
 		} else {
 			i = 0
@@ -351,12 +358,16 @@ func ProcessinData(data MappingColumn) string {
 	var temp string
 	temp = data.Result.(string)
 
-	if strings.Compare(data.Key, "Tipoapoyo") == 0 {
+	if strings.Compare(data.Key, "TipoSubsidio") == 0 {
 		switch conv := data.Result.(string); conv {
-		case "A":
-			temp = "ALMUERZO"
-		case "R":
-			temp = "REFRIGERIO"
+		case "ss":
+			temp = "SIN SUBSIDIO"
+		case "a":
+			temp = "TIPO A"
+		case "b":
+			temp = "TIPO B"
+		case "t":
+			temp = "SUBSIDIO TOTAL"
 		}
 	}
 	if strings.Compare(data.Key, "PobEspecial") == 0 {

@@ -149,6 +149,127 @@ func ReportGeneral(students []StudentInformation, name string) {
 	defer session.Close()
 }
 
+//OthersReports - Generate Reports students
+func OthersReports(students []StudentInformation) {
+
+	var file *xlsx.File
+	var sheet *xlsx.Sheet
+	var row *xlsx.Row
+	var Maping []MappingColumn
+	var MapingNow []MappingColumn
+	file = xlsx.NewFile()
+
+	//sheet 1 -- sisben
+	sheet, err := file.AddSheet("Sisben")
+	var column []int
+	column = append(column, 1, 25, 31, 30)
+	Maping = GEtMappingColumn()
+	for numuno := range column {
+		for num := range Maping {
+			if Maping[num].Value == column[numuno] {
+				MapingNow = append(MapingNow, Maping[num])
+				break
+			}
+		}
+	}
+	//name Columns
+	var cell *xlsx.Cell
+	row = sheet.AddRow()
+	for numdo := range MapingNow {
+		cell = row.AddCell()
+		cell.Value = MapingNow[numdo].ColumnName
+	}
+
+	// cell document
+	for fil := range students {
+		if strings.Compare(students[fil].Informacioneconomica[0].Sisben, "no") == 0 {
+			continue
+		}
+		row = sheet.AddRow()
+		students[fil] = RescueInformation(students[fil])
+		for numdo := range MapingNow {
+			cell = row.AddCell()
+			MapingNow[numdo] = MapingBD(students[fil], MapingNow[numdo])
+			if MapingNow[numdo].Result != nil {
+				cell.Value = MapingNow[numdo].Result.(string)
+			}
+		}
+	}
+	//sheet 2 -- Ser Pilo Paga
+	sheet, err = file.AddSheet("Ser Pilo Paga")
+
+	//name Columns
+	var celldos *xlsx.Cell
+	row = sheet.AddRow()
+	for numdo := range MapingNow {
+		celldos = row.AddCell()
+		celldos.Value = MapingNow[numdo].ColumnName
+	}
+
+	// cell document
+	for fil := range students {
+		if strings.Compare(students[fil].Informacioneconomica[0].SerPiloPaga, "no") == 0 {
+			continue
+		}
+		row = sheet.AddRow()
+		students[fil] = RescueInformation(students[fil])
+		for numdo := range MapingNow {
+			celldos = row.AddCell()
+			MapingNow[numdo] = MapingBD(students[fil], MapingNow[numdo])
+			if MapingNow[numdo].Result != nil {
+				celldos.Value = MapingNow[numdo].Result.(string)
+			}
+		}
+	}
+	//sheet 3 -- sisben
+	sheet, err = file.AddSheet("Totales")
+
+	//name Columns
+	var cellSIN *xlsx.Cell
+	var cellA *xlsx.Cell
+	var cellB *xlsx.Cell
+	var cellCON *xlsx.Cell
+	row = sheet.AddRow()
+	cellSIN = row.AddCell()
+	cellA = row.AddCell()
+	cellB = row.AddCell()
+	cellCON = row.AddCell()
+	cellSIN.Value = "SIN SUBSIDIO"
+	cellA.Value = "TIPO A"
+	cellB.Value = "TIPO B"
+	cellCON.Value = "SUBSIDIO TOTAL"
+	var TSIN int
+	var TA int
+	var TB int
+	var TT int
+	// cell document
+	for fil := range students {
+		if strings.Compare(students[fil].Informacioneconomica[0].TipoSubsidio, "t") == 0 {
+			TT++
+		} else if strings.Compare(students[fil].Informacioneconomica[0].TipoSubsidio, "a") == 0 {
+			TA++
+		} else if strings.Compare(students[fil].Informacioneconomica[0].TipoSubsidio, "b") == 0 {
+			TB++
+		} else if strings.Compare(students[fil].Informacioneconomica[0].TipoSubsidio, "ss") == 0 {
+			TSIN++
+		}
+	}
+	row = sheet.AddRow()
+	cellSIN = row.AddCell()
+	cellA = row.AddCell()
+	cellB = row.AddCell()
+	cellCON = row.AddCell()
+	cellSIN.Value = strconv.Itoa(TSIN)
+	cellA.Value = strconv.Itoa(TA)
+	cellB.Value = strconv.Itoa(TB)
+	cellCON.Value = strconv.Itoa(TT)
+
+	err = file.Save("tempfile.xlsx")
+	if err != nil {
+		fmt.Printf(err.Error())
+	}
+}
+
 /* bonus functions*/
 
 //MakeThing - Construc of model

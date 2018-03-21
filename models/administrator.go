@@ -49,6 +49,14 @@ func GetInscription(session *mgo.Session, State string, model ReportsType) ([]St
 	err := MainSession.Pipe(query).All(&InfoGeneralComplete)
 	if strings.Compare(model.TSede, "ALL") != 0 {
 		InfoGeneralComplete = Getname(InfoGeneralComplete, model.TSede)
+	} else {
+		var AllStudents []StudentInformation
+		for fil := range InfoGeneralComplete {
+			if len(InfoGeneralComplete[fil].Informacioneconomica) > 0 {
+				AllStudents = append(AllStudents, InfoGeneralComplete[fil])
+			}
+		}
+		InfoGeneralComplete = AllStudents
 	}
 	if err != nil {
 		fmt.Println(err)

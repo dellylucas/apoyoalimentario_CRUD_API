@@ -129,6 +129,8 @@ func (j *AdministratorController) Post() {
 	} else if modelReport.TypeReport == 2 {
 		//Report Score
 		models.ReportGeneral(UserType, modelReport.NameSheet)
+	} else if modelReport.TypeReport == 3 {
+		models.OthersReports(UserType)
 	}
 
 	archi, _ := ioutil.ReadFile("tempfile.xlsx")

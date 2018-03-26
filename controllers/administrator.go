@@ -12,6 +12,8 @@ import (
 	"github.com/astaxie/beego"
 )
 
+/*pruebasbienestar bienestarinstitucional*/
+
 //AdministratorController Operaciones Crud admin
 type AdministratorController struct {
 	beego.Controller

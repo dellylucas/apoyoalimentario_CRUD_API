@@ -187,7 +187,7 @@ func LastState(old Economic) Economic {
 	if strings.Compare(old.Ciudad, "") == 0 {
 		old.Ciudad = "bogota"
 	}
-	if strings.Compare(old.Tipoapoyo, "") == 0 {
+	if strings.Compare(old.Tipoapoyo, "") == 0 || strings.Compare(old.Tipoapoyo, "A") == 0 {
 		old.Tipoapoyo = "Almuerzo"
 	}
 	return old

@@ -57,26 +57,28 @@ func GetInformationEconomic(session *mgo.Session, code string) (Economic, error)
 
 //UpdateInformationEconomic - Update the information economic of student
 func UpdateInformationEconomic(session *mgo.Session, newInfo Economic, code string) ([]string, error) {
-	MainSession := db.Cursor(session, utility.CollectionGeneral)
-	EconomicSession := db.Cursor(session, utility.CollectionEconomic)
 	var InfoGeneral StudentInformation
 	var InfoEcoOld Economic
-	errd := MainSession.Find(bson.M{"codigo": code}).One(&InfoGeneral)
-	errd = EconomicSession.Find(bson.M{"id": InfoGeneral.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcoOld)
-	keyfiledelete, newInfo := Rescueinf(newInfo, InfoEcoOld)
-	err := EconomicSession.Update(bson.M{"id": InfoGeneral.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}, &newInfo)
-	if err != nil {
-		panic(errd)
+	var keyfiledelete []string
+	MainSession := db.Cursor(session, utility.CollectionGeneral)
+	EconomicSession := db.Cursor(session, utility.CollectionEconomic)
+
+	err := MainSession.Find(bson.M{"codigo": code}).One(&InfoGeneral)
+	err = EconomicSession.Find(bson.M{"id": InfoGeneral.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcoOld)
+	if err == nil {
+		keyfiledelete, newInfo = Rescueinf(newInfo, InfoEcoOld)
+		err = EconomicSession.Update(bson.M{"id": InfoGeneral.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}, &newInfo)
 	}
 	return keyfiledelete, err
 }
 
 //GetRequiredFiles - get infoeconomica periodo y semestre actual de un estudiante por codigo
 func GetRequiredFiles(session *mgo.Session, code string) ([]string, error) {
-	MainSession := db.Cursor(session, utility.CollectionGeneral)
-	EconomicSession := db.Cursor(session, utility.CollectionEconomic)
 	var InfoGeneral StudentInformation
 	var InfoEcono Economic
+	MainSession := db.Cursor(session, utility.CollectionGeneral)
+	EconomicSession := db.Cursor(session, utility.CollectionEconomic)
+
 	var key = []string{"PersonasACargo", "EmpleadorOArriendo", "CondicionEspecial", "CondicionDiscapacidad", "PatologiaAlimenticia"}
 	var keyrequired = []string{"FormatoInscripcion", "CartaADirectora", "CertificadoEstrato", "FotocopiaReciboServicio", "CertificadoIngresos", "ReciboUniversidad"}
 	errP := MainSession.Find(bson.M{"codigo": code}).One(&InfoGeneral)
@@ -120,28 +122,13 @@ func UpdateStateVerificator(session *mgo.Session, cod string, info Economic) err
 
 /* Functions Bonus*/
 
-//Rescueinf - Update information model
+//Rescueinf - Update information model and validate save files
 func Rescueinf(newI Economic, old Economic) ([]string, Economic) {
 
-	//validate save files
+	//Guarda nombres de archivos que el estudiante subio y no son necesarios
 	var FileExists []string
-	if strings.Compare(newI.Discapacidad, "no") == 0 {
-		FileExists = append(FileExists, "CondicionDiscapacidad")
-	}
-	if strings.Compare(newI.PersACargo, "no") == 0 {
-		FileExists = append(FileExists, "PersonasACargo")
-	}
-	if strings.Compare(newI.EmpleadArriendo, "no") == 0 {
-		FileExists = append(FileExists, "EmpleadorOArriendo")
-	}
-	if strings.Compare(newI.PobEspecial, "N") == 0 {
-		FileExists = append(FileExists, "CondicionEspecial")
-	}
-	if strings.Compare(newI.PatAlimenticia, "no") == 0 {
-		FileExists = append(FileExists, "PatologiaAlimenticia")
-	}
 
-	//Empty
+	//replace old information
 	if strings.Compare(newI.Estrato, "") != 0 {
 		old.Estrato = newI.Estrato
 	}
@@ -161,9 +148,15 @@ func Rescueinf(newI Economic, old Economic) ([]string, Economic) {
 		old.Nucleofam = newI.Nucleofam
 	}
 	if strings.Compare(newI.PersACargo, "") != 0 {
+		if strings.Compare(newI.PersACargo, "no") == 0 {
+			FileExists = append(FileExists, "PersonasACargo")
+		}
 		old.PersACargo = newI.PersACargo
 	}
 	if strings.Compare(newI.EmpleadArriendo, "") != 0 {
+		if strings.Compare(newI.EmpleadArriendo, "no") == 0 {
+			FileExists = append(FileExists, "EmpleadorOArriendo")
+		}
 		old.EmpleadArriendo = newI.EmpleadArriendo
 	}
 	if strings.Compare(newI.ProvBogota, "") != 0 {
@@ -173,12 +166,21 @@ func Rescueinf(newI Economic, old Economic) ([]string, Economic) {
 		old.Ciudad = newI.Ciudad
 	}
 	if strings.Compare(newI.PobEspecial, "") != 0 {
+		if strings.Compare(newI.PobEspecial, "N") == 0 {
+			FileExists = append(FileExists, "CondicionEspecial")
+		}
 		old.PobEspecial = newI.PobEspecial
 	}
 	if strings.Compare(newI.Discapacidad, "") != 0 {
+		if strings.Compare(newI.Discapacidad, "no") == 0 {
+			FileExists = append(FileExists, "CondicionDiscapacidad")
+		}
 		old.Discapacidad = newI.Discapacidad
 	}
 	if strings.Compare(newI.PatAlimenticia, "") != 0 {
+		if strings.Compare(newI.PatAlimenticia, "no") == 0 {
+			FileExists = append(FileExists, "PatologiaAlimenticia")
+		}
 		old.PatAlimenticia = newI.PatAlimenticia
 	}
 	if strings.Compare(newI.SerPiloPaga, "") != 0 {
@@ -196,10 +198,6 @@ func Rescueinf(newI Economic, old Economic) ([]string, Economic) {
 	if strings.Compare(newI.Antiguedad, "") != 0 {
 		old.Antiguedad = newI.Antiguedad
 	}
-	//Rules
-	// if strings.Compare(newI.TipoSubsidio , "") != 0 {
-	// 	old.TipoSubsidio = newI.TipoSubsidio
-	// }
 	return FileExists, old
 }
 

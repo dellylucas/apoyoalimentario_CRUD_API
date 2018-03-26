@@ -63,11 +63,10 @@ func (j *EconomicController) Get() {
 	j.ServeJSON()
 }
 
-//Put - update the Infoapoyo
+//Put - update the Information economic of student
 // @Title Put
 // @Description update the Infoapoyo
 // @Param	code		path 	string	true		"The code you want to update"
-// @Param	body		body 	models.Object	true		"The body"
 // @Success 200 {object} models.Object
 // @Failure 403 :code is empty
 // @router /:code [put]
@@ -79,20 +78,22 @@ func (j *EconomicController) Put() {
 	json.Unmarshal(j.Ctx.Input.RequestBody, &InfoEcono)
 	session, _ := db.GetSession()
 
-	keyFileDelete, erro := models.UpdateInformationEconomic(session, InfoEcono, Codigo)
-	models.Deletefile(session, Codigo, keyFileDelete)
+	keyFileDelete, err := models.UpdateInformationEconomic(session, InfoEcono, Codigo)
+	if len(keyFileDelete) > 0 {
+		models.Deletefile(session, Codigo, keyFileDelete)
+	}
 
-	if erro != nil {
-		resul = erro.Error()
+	if err != nil {
+		resul = err.Error()
 	}
 	j.Data["json"] = resul
 	defer session.Close()
 	j.ServeJSON()
 }
 
-//LastPut - update the Infoapoyo
+//LastPut - update the Information last step of student
 // @Title LastPut
-// @Description update the Infoapoyo
+// @Description update the Information last step of student
 // @Param	code		path 	string	true		"The code you want to update"
 // @Success 200 {object} models.Object
 // @Failure 403 :code is empty
@@ -103,22 +104,31 @@ func (j *EconomicController) LastPut() {
 	var InfoEcono models.Economic
 
 	json.Unmarshal(j.Ctx.Input.RequestBody, &InfoEcono)
-	session, _ := db.GetSession()
-	keyFileDelete, erro := models.UpdateInformationEconomic(session, InfoEcono, code)
-	models.Deletefile(session, code, keyFileDelete)
-	if erro != nil {
-		j.Data["json"] = erro
-	} else {
-		values, err := models.GetRequiredFiles(session, code)
-		if err != nil {
-			j.Data["json"] = err.Error()
+	session, err := db.GetSession()
+
+	if strings.Compare(code, "") != 0 && err == nil {
+		keyFileDelete, erro := models.UpdateInformationEconomic(session, InfoEcono, code)
+		if len(keyFileDelete) > 0 {
+			models.Deletefile(session, code, keyFileDelete)
+		}
+		if erro != nil {
+			j.Data["json"] = erro
 		} else {
-			files, err := models.Completefile(session, code, values)
+			values, err := models.GetRequiredFiles(session, code)
 			if err != nil {
-				j.Data["json"] = files
+				j.Data["json"] = err.Error()
 			} else {
-				err = models.UpdateState(session, code)
-				j.Data["json"] = files
+				files, err := models.Completefile(session, code, values)
+				if err != nil {
+					j.Data["json"] = files
+				} else {
+					err = models.UpdateState(session, code)
+					if err != nil {
+						j.Data["json"] = err.Error()
+					} else {
+						j.Data["json"] = files
+					}
+				}
 			}
 		}
 	}

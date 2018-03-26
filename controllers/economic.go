@@ -37,20 +37,23 @@ func (j *EconomicController) GetState() {
 	j.ServeJSON()
 }
 
-//Get - get Infoapoyo by code
+//Get - get Information of student in BD by code
 // @Title Get
-// @Description get Infoapoyo by code
-// @Param	code		path 	string	true		"El id de la Infoapoyo a consultar"
+// @Description get Information of student in BD by code
+// @Param	code	path 	string	true		"El codigo del estudiante a consultar informacion economica"
 // @Success 200 {object} models.Infoapoyo
 // @Failure 403 :code is empty
 // @router /:code [get]
 func (j *EconomicController) Get() {
 	Code := j.GetString(":code")
 
-	session, _ := db.GetSession()
+	session, err := db.GetSession()
 	defer session.Close()
-	if Code != "" {
-		Infoapoyo, err := models.GetInformationEconomic(session, Code)
+
+	if strings.Compare(Code, "") != 0 && err == nil {
+
+		var Infoapoyo models.Economic
+		Infoapoyo, err = models.GetInformationEconomic(session, Code)
 		if err != nil {
 			j.Data["json"] = err.Error()
 		} else {

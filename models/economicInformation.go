@@ -49,7 +49,9 @@ func GetInformationEconomic(session *mgo.Session, code string) (Economic, error)
 	var InfoGeneral StudentInformation
 	var InfoEcono Economic
 	errP := MainSession.Find(bson.M{"codigo": code}).One(&InfoGeneral)
-	errP = EconomicSession.Find(bson.M{"id": InfoGeneral.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcono)
+	if errP == nil {
+		errP = EconomicSession.Find(bson.M{"id": InfoGeneral.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcono)
+	}
 	return InfoEcono, errP
 }
 

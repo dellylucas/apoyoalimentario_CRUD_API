@@ -33,7 +33,7 @@ func GetInscription(session *mgo.Session, State string, model ReportsType) ([]St
 	query := []bson.M{
 		{
 			"$lookup": bson.M{ // lookup the documents table here
-				"from": "informacioneconomica",
+				"from": utility.CollectionEconomic,
 				"let":  bson.M{"general_id": "$_id"},
 				"pipeline": []bson.M{
 					{
@@ -44,7 +44,7 @@ func GetInscription(session *mgo.Session, State string, model ReportsType) ([]St
 								"$eq": []string{"$$general_id", "$id"},
 							}},
 					}},
-				"as": "informacioneconomica",
+				"as": utility.CollectionEconomic,
 			}}}
 	err := MainSession.Pipe(query).All(&InfoGeneralComplete)
 	if strings.Compare(model.TSede, "ALL") != 0 {
@@ -96,8 +96,8 @@ func Getname(model []StudentInformation, SedeChecker string) []StudentInformatio
 
 	for fil := range model {
 		utility.GetServiceXML(&ModelFacul, utility.FacultyService+model[fil].Codigo)
-		str := strings.Replace(ModelFacul.NameFaculty, "/", "-", -1)
-		if strings.Compare(SedeChecker, str) == 0 && len(model[fil].Informacioneconomica) > 0 {
+		facultadEstudiante := strings.Replace(ModelFacul.NameFaculty, "/", "-", -1)
+		if strings.Compare(SedeChecker, facultadEstudiante) == 0 && len(model[fil].Informacioneconomica) > 0 {
 			utility.GetServiceXML(&ModelBasic, utility.BasicService+model[fil].Codigo)
 			model[fil].Nombre = ModelBasic.Name
 			Getinfo = append(Getinfo, model[fil])

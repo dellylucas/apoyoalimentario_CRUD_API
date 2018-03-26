@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"time"
 
 	"github.com/astaxie/beego"
@@ -52,12 +53,12 @@ func (j *AdministratorController) GetStudents() {
 func (j *AdministratorController) GetConfig() {
 	session, _ := db.GetSession()
 
-	Message, err := models.GetConfiguration(session)
+	Configuration, err := models.GetConfiguration(session)
 
 	if err != nil {
 		j.Data["json"] = err.Error()
 	} else {
-		j.Data["json"] = Message
+		j.Data["json"] = Configuration
 	}
 
 	j.ServeJSON()
@@ -136,7 +137,7 @@ func (j *AdministratorController) Post() {
 	}
 
 	archi, _ := ioutil.ReadFile("tempfile.xlsx")
-	//os.Remove("tempfile.xlsx")
+	os.Remove("tempfile.xlsx")
 	if err != nil {
 		fmt.Printf(err.Error())
 		j.Data["json"] = err.Error()

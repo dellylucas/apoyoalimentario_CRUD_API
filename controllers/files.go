@@ -41,10 +41,11 @@ func (u *FileController) Post() {
 		for fil := range getfiles {
 			if len(fil) > 0 {
 				arre := getfiles[fil]
-				if arre[0].Header["Content-Type"][0] == "application/pdf" && arre[0].Size < 512000 {
+				/*Archivos pdf y menores de 500 KB se guardan en servidor y en historico BD*/
+				if arre[0].Header["Content-Type"][0] == "application/pdf" && arre[0].Size < 512050 {
 					u.SaveToFile(fil, path+fil+".pdf")
 					models.Insertfile(session, fil, arre[0].Size, code)
-				} else {
+				} else { /*Error al subir documento*/
 					state += arre[0].Filename + "/"
 				}
 			}
@@ -75,7 +76,6 @@ func (u *FileController) Get() {
 		} else {
 			u.Data["json"] = Infofiles
 		}
-
 	}
 	u.ServeJSON()
 }

@@ -1,5 +1,5 @@
 // @APIVersion 1.0.0
-// @Title beego Test API
+// @Title beego CRUD API Apoyo Alimentario
 // @Description beego has a very cool tools to autogenerate documents for your API
 // @Contact astaxie@gmail.com
 // @TermsOfServiceUrl http://beego.me/
@@ -15,7 +15,7 @@ import (
 
 func init() {
 	ns := beego.NewNamespace("/v1",
-		beego.NSNamespace("/infoapoyo",
+		beego.NSNamespace("/information",
 			beego.NSInclude(
 				&controllers.EconomicController{},
 			),
@@ -25,7 +25,7 @@ func init() {
 				&controllers.FileController{},
 			),
 		),
-		beego.NSNamespace("/admin",
+		beego.NSNamespace("/administrator",
 			beego.NSInclude(
 				&controllers.AdministratorController{},
 			),

@@ -16,7 +16,7 @@ func Cursor(session *mgo.Session, Collection string) *mgo.Collection {
 	return c
 }
 
-//GetSession - dfs
+//GetSession - conexion de Base de Datos
 func GetSession() (*mgo.Session, error) {
 
 	mongoHost := beego.AppConfig.String("mongo_host")
@@ -34,7 +34,7 @@ func GetSession() (*mgo.Session, error) {
 
 	session, err := mgo.DialWithInfo(info)
 	if err != nil {
-		fmt.Println("Helo this is an error!")
+		fmt.Println("error session DB!")
 		panic(err)
 	} else {
 		session.SetMode(mgo.Monotonic, true)

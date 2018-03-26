@@ -13,7 +13,7 @@ import (
 	"github.com/astaxie/beego"
 )
 
-//Semester - calculates current semester
+//Semester - calcula el semestre actual
 func Semester() (round int) {
 	NowMonth := time.Now().UTC().Month()
 
@@ -25,7 +25,7 @@ func Semester() (round int) {
 	return round
 }
 
-//GetServiceXML - get data from an URL xml service
+//GetServiceXML - Obtiene datos desde una URL de un servicio XML
 func GetServiceXML(T interface{}, url string) error {
 
 	response, err := http.Get(url)
@@ -45,7 +45,7 @@ func GetServiceXML(T interface{}, url string) error {
 	return err
 }
 
-//GetInitEnd - returns the start and end of a semester in time format
+//GetInitEnd - Retorna el comienxo y fin de un semestre en formato Time
 func GetInitEnd() (fromDate time.Time, toDate time.Time) {
 	Semester := Semester()
 	var Inicial time.Month
@@ -62,8 +62,8 @@ func GetInitEnd() (fromDate time.Time, toDate time.Time) {
 	return fromDate, toDate
 }
 
-//SendJsonToRuler - send Ruler
-func SendJsonToRuler(url string, trequest string, datajson interface{}) (string, error) {
+//SendJSONToRuler - Hace un llamado al MID API con la informacion Socioeconomica y obtiene el tipo de apoyo
+func SendJSONToRuler(url string, trequest string, datajson interface{}) (string, error) {
 	b := new(bytes.Buffer)
 	if datajson != nil {
 		json.NewEncoder(b).Encode(datajson)
@@ -79,14 +79,3 @@ func SendJsonToRuler(url string, trequest string, datajson interface{}) (string,
 	contents, err := ioutil.ReadAll(r.Body)
 	return strings.Replace(string(contents), "\"", "", -1), err
 }
-
-// //Getipaddres - returns the current ip server of api
-// func Getipaddres() net.IP {
-// 	conn, err := net.Dial("udp", "8.8.8.8:80")
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	defer conn.Close()
-// 	localAddr := conn.LocalAddr().(*net.UDPAddr)
-// 	return localAddr.IP
-// }

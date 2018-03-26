@@ -1,43 +1,43 @@
 package utility
 
-/* URL´s Services University*/
+/* URL´s de Servicios de la Universidad*/
 
-//FacultyService - URL query service the information of faculty of a student
+//FacultyService - URL retorna servicio con la informacion institucional de un estudiante
 const FacultyService = "http://jbpm.udistritaloas.edu.co:8280/services/bienestarProxy/info_institucional/"
 
-//BasicService - URL query service the information basic of a student
+//BasicService - URL retorna servicio con la informacion basica de un estudiante
 const BasicService = "http://jbpm.udistritaloas.edu.co:8280/services/bienestarProxy/info_basica/"
 
-//EnrollmentService -  URL query service the information of value "matricula" of a student
+//EnrollmentService -  URL retorna servicio con la informacion de la matricula sin sitematizacion de un estudiante
 const EnrollmentService = "http://jbpm.udistritaloas.edu.co:8280/services/bienestarProxy/info_recibo/"
 
-//StateService - query URL service the information basic of a student
+//StateService - URL retorna servicio con la informacion del estado ACTIVO o INCTIVO de un estudiante
 const StateService = "http://jbpm.udistritaloas.edu.co:8280/services/bienestarProxy/info_estado/"
 
-//AcademicService - query URL service the information basic of a student
+//AcademicService - URL retorna servicio con la informacion academica de un estudiante
 const AcademicService = "http://jbpm.udistritaloas.edu.co:8280/services/bienestarProxy/info_academica/"
 
-/* URL's for Files Get and post*/
+/* URL's*/
 
-//FileSavePath - URL of address where the files are saved
+//FileSavePath - URL de direccion Local donde los archivos se van a guardar
 const FileSavePath = "C:\\xampp\\htdocs\\Tempfiles\\"
 
-//ServerPath - URL of server where save files
-const ServerPath = "http://192.168.1.43:80/Tempfiles/"
+//ServerPath - URL del servidor donde los archivos son llamados APACHE
+const ServerPath = "http://localhost:80/Tempfiles/"
 
-//RulerPath - MID-API Path - URL of server
-const RulerPath = "http://192.168.1.43:8090/v1/resultado/"
+//RulerPath - MID-API direccion del llamado
+const RulerPath = "http://localhost:8090/v1/resultado/"
 
-/* Collections of Data Base*/
+/*Collecciones de Base de Datos MONGODB*/
 
-//CollectionHistoricFiles - Name of Collection of DB of History of Files
+//CollectionHistoricFiles - Nombre de la coleccion de BD del Historico de archivos
 const CollectionHistoricFiles = "apoyoalimentarioarchivos"
 
-//CollectionAdministrator - Name of Collection of DB of Administrator Configurations
+//CollectionAdministrator - Nombre de la coleccion de BD de la configuracion del Administrador
 const CollectionAdministrator = "apoyoadministracion"
 
-//CollectionGeneral - Name of Collection of DB of Information general students
+//CollectionGeneral - Nombre de la coleccion de BD de la Informacion general de los estudiantes
 const CollectionGeneral = "apoyoalimentariogeneral"
 
-//CollectionEconomic - Name of Collection of DB of Information economic students
+//CollectionEconomic - Nombre de la coleccion de BD de la Informacion economica de los estudiantes
 const CollectionEconomic = "informacioneconomica"

@@ -4,6 +4,7 @@ import (
 	"apoyoalimentario_CRUD_API/db"
 	"apoyoalimentario_CRUD_API/models"
 	"encoding/json"
+	"strings"
 
 	"github.com/astaxie/beego"
 
@@ -19,16 +20,20 @@ type EconomicController struct {
 //GetState - get State of student for intro in plataform
 // @Title GetState
 // @Description get State of student for intro in plataform
-// @Param	code		path 	string	true		"El id de la Infoapoyo a consultar"
+// @Param	code		path 	string	true		"El id del estudiante a consultar"
 // @Success 200 {object} models.Infoapoyo
 // @Failure 403 :code is empty
 // @router /state/:code  [get]
 func (j *EconomicController) GetState() {
 	code := j.GetString(":code")
-	session, _ := db.GetSession()
-	obs := models.GetStatus(session, code)
+	session, err := db.GetSession()
+	if err != nil || strings.Compare(code, "") == 0 {
+		j.Data["json"] = err.Error()
+	} else {
+		state := models.GetStatus(session, code)
+		j.Data["json"] = &state
+	}
 	defer session.Close()
-	j.Data["json"] = &obs
 	j.ServeJSON()
 }
 

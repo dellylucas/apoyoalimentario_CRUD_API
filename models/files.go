@@ -63,7 +63,7 @@ func Completefile(session *mgo.Session, code string, clave []string) (int, error
 
 //GetFiles - get all files by code in current semester
 func GetFiles(session *mgo.Session, code string) ([]FilesStudents, error) {
-	//	path := utils.PathRootSaveFile + codigo + "/" + strconv.Itoa() + "-" + strconv.Itoa(utils.Semestre()) + "/"
+
 	FileSession := db.Cursor(session, utility.CollectionHistoricFiles)
 	fromDate, toDate := utility.GetInitEnd()
 	defer session.Close()

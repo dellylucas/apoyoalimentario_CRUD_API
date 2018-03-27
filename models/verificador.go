@@ -48,7 +48,7 @@ func UpdateVerifier(session *mgo.Session, newInfo []Sede) error {
 	return err
 }
 
-//GetSede -
+//GetSede - Get sedes of verifiers
 func GetSede(session *mgo.Session, name string) ([]string, error) {
 	MainSession := db.Cursor(session, utility.CollectionAdministrator)
 

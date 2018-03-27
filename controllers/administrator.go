@@ -83,7 +83,6 @@ func (j *AdministratorController) PutConfig() {
 		resul = erro.Error()
 	}
 	j.Data["json"] = resul
-	defer session.Close()
 	j.ServeJSON()
 }
 
@@ -125,23 +124,24 @@ func (j *AdministratorController) Post() {
 
 	session, _ := db.GetSession()
 
-	UserType, err := models.GetInscription(session, "3", modelReport)
+	//Get students in state 3 -> verified ok
+	Students, err := models.GetInscription(session, "3", modelReport)
 	//Report Generic
-	if modelReport.TypeReport == 1 {
-		models.ReportsGeneric(UserType, modelReport.NameSheet, modelReport.Columnas)
-	} else if modelReport.TypeReport == 2 {
-		//Report Score
-		models.ReportGeneral(UserType, modelReport.NameSheet)
-	} else if modelReport.TypeReport == 3 {
-		models.OthersReports(UserType)
-	}
 
-	archi, _ := ioutil.ReadFile("tempfile.xlsx")
-	os.Remove("tempfile.xlsx")
 	if err != nil {
 		fmt.Printf(err.Error())
 		j.Data["json"] = err.Error()
 	} else {
+		if modelReport.TypeReport == 1 { //Report Generic
+			models.ReportsGeneric(Students, modelReport.NameSheet, modelReport.Columnas)
+		} else if modelReport.TypeReport == 2 { //Report Score final student
+			models.ReportGeneral(Students, modelReport.NameSheet)
+		} else if modelReport.TypeReport == 3 { //Sisben - ser pilo paga - Totales
+			models.OthersReports(Students)
+		}
+
+		archi, _ := ioutil.ReadFile("tempfile.xlsx")
+		os.Remove("tempfile.xlsx")
 		j.Ctx.Output.Body(archi)
 	}
 }
@@ -189,9 +189,9 @@ func (j *AdministratorController) PutVerif() {
 	j.ServeJSON()
 }
 
-//Getsede - get configuration Administrator
+//Getsede - get sedes of verifier
 // @Title Getsede
-// @Description get configuration verifier
+// @Description  get sedes of verifier
 // @Param	name		path 	string	true		"El estado del proceso a consultar"
 // @Success 200 {string}
 // @Failure 403 :name is empty

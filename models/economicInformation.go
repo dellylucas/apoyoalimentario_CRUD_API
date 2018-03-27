@@ -105,18 +105,16 @@ func GetRequiredFiles(session *mgo.Session, code string) ([]string, error) {
 
 //UpdateStateVerificator - update state later verification of student
 func UpdateStateVerificator(session *mgo.Session, cod string, info Economic) error {
-	MainSession := db.Cursor(session, utility.CollectionGeneral)
-	EconomicSession := db.Cursor(session, utility.CollectionEconomic)
 	var InfoGeneralU StudentInformation
 	var InfoEcoOldU Economic
-	errd := MainSession.Find(bson.M{"codigo": cod}).One(&InfoGeneralU)
+	MainSession := db.Cursor(session, utility.CollectionGeneral)
+	EconomicSession := db.Cursor(session, utility.CollectionEconomic)
 
+	MainSession.Find(bson.M{"codigo": cod}).One(&InfoGeneralU)
 	err := EconomicSession.Find(bson.M{"id": InfoGeneralU.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcoOldU)
 	UpdateS := VerificatorUpdate(info, InfoEcoOldU)
 	err = EconomicSession.Update(bson.M{"id": InfoGeneralU.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}, &UpdateS)
-	if err != nil {
-		panic(errd)
-	}
+
 	return err
 }
 

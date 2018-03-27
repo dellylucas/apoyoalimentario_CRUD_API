@@ -63,6 +63,7 @@ func ReportsGeneric(sa []StudentInformation, NameSheet string, column []int) {
 		sa[fil] = RescueInformation(sa[fil])
 		for numdo := range MapingNow {
 			cell = row.AddCell()
+			//reflection
 			MapingNow[numdo] = MapingBD(sa[fil], MapingNow[numdo])
 			if MapingNow[numdo].Result != nil {
 				var temp string
@@ -238,19 +239,20 @@ func OthersReports(students []StudentInformation) {
 	cellA.Value = "TIPO A"
 	cellB.Value = "TIPO B"
 	cellCON.Value = "SUBSIDIO TOTAL"
-	var TSIN int
-	var TA int
-	var TB int
-	var TT int
+	var TSIN int //count SIN SUBSIDIO
+	var TA int   // count TIPO A
+	var TB int   // count TIPO B
+	var TT int   // count SUBSIDIO TOTAL
 	// cell document
 	for fil := range students {
-		if strings.Compare(students[fil].Informacioneconomica[0].TipoSubsidio, "t") == 0 {
+		switch os := students[fil].Informacioneconomica[0].TipoSubsidio; os {
+		case "t":
 			TT++
-		} else if strings.Compare(students[fil].Informacioneconomica[0].TipoSubsidio, "a") == 0 {
+		case "a":
 			TA++
-		} else if strings.Compare(students[fil].Informacioneconomica[0].TipoSubsidio, "b") == 0 {
+		case "b":
 			TB++
-		} else if strings.Compare(students[fil].Informacioneconomica[0].TipoSubsidio, "ss") == 0 {
+		case "ss":
 			TSIN++
 		}
 	}
@@ -282,48 +284,7 @@ func MakeThingD(Col string, Val int, Keys string, Score string) MappingColumn {
 	return MappingColumn{Col, Val, Keys, "", Score}
 }
 
-//GEtMappingColumn - Get values Metadata for reports
-func GEtMappingColumn() []MappingColumn {
-	var Global []MappingColumn
-
-	Global = append(Global, MakeThing("CODIGO", 1, "Codigo"))
-	Global = append(Global, MakeThing("FECHA DE INSCRIPCION", 2, "Fechainscripcion"))
-	Global = append(Global, MakeThingD("ESTRATO SOCIOECONÓMICO", 3, "Estrato", "Si"))
-	Global = append(Global, MakeThingD("INGRESOS PROPIOS O FAMILIARES", 4, "Ingresos", "Si"))
-	Global = append(Global, MakeThingD("SE SOSTIENE ECONÓMICAMENTE  A SÍ MISMO", 5, "SostePropia", "Si"))
-	Global = append(Global, MakeThingD("SOSTIENE EL HOGAR EN QUE VIVE", 6, "SosteHogar", "Si"))
-	Global = append(Global, MakeThingD("VIVE FUERA DE SU NÚCLEO FAMILIAR", 7, "Nucleofam", "Si"))
-	Global = append(Global, MakeThingD("TIENE PERSONAS A CARGO", 8, "PersACargo", "Si"))
-	Global = append(Global, MakeThingD("VIVE EN CASA DEL EMPLEADOR O PAGA ARRIENDO", 9, "EmpleadArriendo", "Si"))
-	Global = append(Global, MakeThingD("PROVIENE DE CIUDADES O MUNICIPIOS DISTINTOS A BOGOTÁ", 10, "ProvBogota", "Si"))
-	Global = append(Global, MakeThing("CIUDAD O MUNICIPIO", 11, "Ciudad"))
-	Global = append(Global, MakeThingD("ESTÁ CERTIFICADO COMO POBLACIÓN ESPECIAL", 12, "PobEspecial", "Si"))
-	Global = append(Global, MakeThingD("DISCAPACIDAD FÍSICA O MENTAL", 13, "Discapacidad", "Si"))
-	Global = append(Global, MakeThingD("PATOLOGÍA ASOCIADA CON LA NUTRICIÓN", 14, "PatAlimenticia", "Si"))
-	Global = append(Global, MakeThing("SER PILO PAGA", 15, "SerPiloPaga"))
-	Global = append(Global, MakeThing("SISBEN", 16, "Sisben"))
-	Global = append(Global, MakeThing("AÑO", 17, "Periodo"))
-	Global = append(Global, MakeThing("SEMESTRE", 18, "SemestreIns"))
-	Global = append(Global, MakeThingD("MATRICULA", 19, "Matricula", "Si"))
-	Global = append(Global, MakeThing("TIPO DE SUBSIDIO", 20, "TipoSubsidio"))
-	Global = append(Global, MakeThing("TIPO DE APOYO ALIMENTARIO", 21, "Tipoapoyo"))
-	Global = append(Global, MakeThing("TELEFONO", 22, "Telefono"))
-	Global = append(Global, MakeThing("CORREO", 23, "Correo"))
-	Global = append(Global, MakeThing("ANTIGUEDAD PROGRAMA", 24, "Antiguedad"))
-	/*columns of services*/
-	Global = append(Global, MakeThing("APELLIDOS Y NOMBRES", 25, "Nombre"))
-	Global = append(Global, MakeThing("LOCALIDAD", 26, "Localidad"))
-	Global = append(Global, MakeThing("DIRECCION", 27, "Direccion"))
-	Global = append(Global, MakeThing("TIPO DE DOCUMENTO", 28, "TDocument"))
-	Global = append(Global, MakeThing("NUMERO DE DOCUMENTO", 29, "Document"))
-	Global = append(Global, MakeThing("FACULTAD", 30, "Facultad"))
-	Global = append(Global, MakeThing("PROYECTO CURRICULAR", 31, "Proyecto"))
-	Global = append(Global, MakeThing("GENERO", 32, "Genero"))
-	Global = append(Global, MakeThing("SEMESTRE", 33, "Semestre"))
-	Global = append(Global, MakeThing("PROMEDIO", 34, "Promedio"))
-	Global = append(Global, MakeThing("TOTAL PUNTAJE", 35, "Total"))
-	return Global
-}
+// reflection information general
 func (f *StudentInformation) reflect(ret string) interface{} {
 	val := reflect.ValueOf(f).Elem()
 	var res interface{}
@@ -346,6 +307,7 @@ func (f *StudentInformation) reflect(ret string) interface{} {
 	return res
 }
 
+// reflection information economic
 func (f *Economic) reflectEcono(ret string) interface{} {
 	val := reflect.ValueOf(f).Elem()
 	var res interface{}
@@ -367,7 +329,7 @@ func MapingBD(sa StudentInformation, values MappingColumn) MappingColumn {
 	return values
 }
 
-//RescueInformation - rescue info student
+//RescueInformation - rescue information of student
 func RescueInformation(sa StudentInformation) StudentInformation {
 	var ModelFacult XmlFaculty
 	var ModelBasic XmlBasic
@@ -508,4 +470,47 @@ func ProcessinData(data MappingColumn) string {
 		}
 	}
 	return temp
+}
+
+//GEtMappingColumn - Get values Metadata for reports
+func GEtMappingColumn() []MappingColumn {
+	var Global []MappingColumn
+
+	Global = append(Global, MakeThing("CODIGO", 1, "Codigo"))
+	Global = append(Global, MakeThing("FECHA DE INSCRIPCION", 2, "Fechainscripcion"))
+	Global = append(Global, MakeThingD("ESTRATO SOCIOECONÓMICO", 3, "Estrato", "Si"))
+	Global = append(Global, MakeThingD("INGRESOS PROPIOS O FAMILIARES", 4, "Ingresos", "Si"))
+	Global = append(Global, MakeThingD("SE SOSTIENE ECONÓMICAMENTE  A SÍ MISMO", 5, "SostePropia", "Si"))
+	Global = append(Global, MakeThingD("SOSTIENE EL HOGAR EN QUE VIVE", 6, "SosteHogar", "Si"))
+	Global = append(Global, MakeThingD("VIVE FUERA DE SU NÚCLEO FAMILIAR", 7, "Nucleofam", "Si"))
+	Global = append(Global, MakeThingD("TIENE PERSONAS A CARGO", 8, "PersACargo", "Si"))
+	Global = append(Global, MakeThingD("VIVE EN CASA DEL EMPLEADOR O PAGA ARRIENDO", 9, "EmpleadArriendo", "Si"))
+	Global = append(Global, MakeThingD("PROVIENE DE CIUDADES O MUNICIPIOS DISTINTOS A BOGOTÁ", 10, "ProvBogota", "Si"))
+	Global = append(Global, MakeThing("CIUDAD O MUNICIPIO", 11, "Ciudad"))
+	Global = append(Global, MakeThingD("ESTÁ CERTIFICADO COMO POBLACIÓN ESPECIAL", 12, "PobEspecial", "Si"))
+	Global = append(Global, MakeThingD("DISCAPACIDAD FÍSICA O MENTAL", 13, "Discapacidad", "Si"))
+	Global = append(Global, MakeThingD("PATOLOGÍA ASOCIADA CON LA NUTRICIÓN", 14, "PatAlimenticia", "Si"))
+	Global = append(Global, MakeThing("SER PILO PAGA", 15, "SerPiloPaga"))
+	Global = append(Global, MakeThing("SISBEN", 16, "Sisben"))
+	Global = append(Global, MakeThing("AÑO", 17, "Periodo"))
+	Global = append(Global, MakeThing("SEMESTRE", 18, "SemestreIns"))
+	Global = append(Global, MakeThingD("MATRICULA", 19, "Matricula", "Si"))
+	Global = append(Global, MakeThing("TIPO DE SUBSIDIO", 20, "TipoSubsidio"))
+	Global = append(Global, MakeThing("TIPO DE APOYO ALIMENTARIO", 21, "Tipoapoyo"))
+	Global = append(Global, MakeThing("TELEFONO", 22, "Telefono"))
+	Global = append(Global, MakeThing("CORREO", 23, "Correo"))
+	Global = append(Global, MakeThing("ANTIGUEDAD PROGRAMA", 24, "Antiguedad"))
+	/*columns of services*/
+	Global = append(Global, MakeThing("APELLIDOS Y NOMBRES", 25, "Nombre"))
+	Global = append(Global, MakeThing("LOCALIDAD", 26, "Localidad"))
+	Global = append(Global, MakeThing("DIRECCION", 27, "Direccion"))
+	Global = append(Global, MakeThing("TIPO DE DOCUMENTO", 28, "TDocument"))
+	Global = append(Global, MakeThing("NUMERO DE DOCUMENTO", 29, "Document"))
+	Global = append(Global, MakeThing("FACULTAD", 30, "Facultad"))
+	Global = append(Global, MakeThing("PROYECTO CURRICULAR", 31, "Proyecto"))
+	Global = append(Global, MakeThing("GENERO", 32, "Genero"))
+	Global = append(Global, MakeThing("SEMESTRE", 33, "Semestre"))
+	Global = append(Global, MakeThing("PROMEDIO", 34, "Promedio"))
+	Global = append(Global, MakeThing("TOTAL PUNTAJE", 35, "Total"))
+	return Global
 }

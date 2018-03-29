@@ -43,37 +43,39 @@ type Economic struct {
 }
 
 //GetInformationEconomic - get information economic current semester by code
-func GetInformationEconomic(session *mgo.Session, code string) (Economic, error) {
-	MainSession := db.Cursor(session, utility.CollectionGeneral)
-	EconomicSession := db.Cursor(session, utility.CollectionEconomic)
+func GetInformationEconomic(session *mgo.Session, code string) (*Economic, error) {
 	var InfoGeneral StudentInformation
 	var InfoEcono Economic
+
+	MainSession := db.Cursor(session, utility.CollectionGeneral)
+	EconomicSession := db.Cursor(session, utility.CollectionEconomic)
+
 	errP := MainSession.Find(bson.M{"codigo": code}).One(&InfoGeneral)
 	if errP == nil {
 		errP = EconomicSession.Find(bson.M{"id": InfoGeneral.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcono)
 	}
-	return InfoEcono, errP
+	return &InfoEcono, errP
 }
 
 //UpdateInformationEconomic - Update the information economic of student
-func UpdateInformationEconomic(session *mgo.Session, newInfo Economic, code string) ([]string, error) {
+func UpdateInformationEconomic(session *mgo.Session, newInfo *Economic, code string) (*[]string, error) {
 	var InfoGeneral StudentInformation
 	var InfoEcoOld Economic
 	var keyfiledelete []string
 	MainSession := db.Cursor(session, utility.CollectionGeneral)
 	EconomicSession := db.Cursor(session, utility.CollectionEconomic)
 
-	err := MainSession.Find(bson.M{"codigo": code}).One(&InfoGeneral)
-	err = EconomicSession.Find(bson.M{"id": InfoGeneral.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcoOld)
+	MainSession.Find(bson.M{"codigo": code}).One(&InfoGeneral)
+	err := EconomicSession.Find(bson.M{"id": InfoGeneral.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcoOld)
 	if err == nil {
-		keyfiledelete, newInfo = Rescueinf(newInfo, InfoEcoOld)
-		err = EconomicSession.Update(bson.M{"id": InfoGeneral.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}, &newInfo)
+		Rescueinf(newInfo, &InfoEcoOld, &keyfiledelete)
+		err = EconomicSession.Update(bson.M{"id": InfoGeneral.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}, &InfoEcoOld)
 	}
-	return keyfiledelete, err
+	return &keyfiledelete, err
 }
 
 //GetRequiredFiles - get infoeconomica periodo y semestre actual de un estudiante por codigo
-func GetRequiredFiles(session *mgo.Session, code string) ([]string, error) {
+func GetRequiredFiles(session *mgo.Session, code string) (*[]string, error) {
 	var InfoGeneral StudentInformation
 	var InfoEcono Economic
 	MainSession := db.Cursor(session, utility.CollectionGeneral)
@@ -81,8 +83,8 @@ func GetRequiredFiles(session *mgo.Session, code string) ([]string, error) {
 
 	var key = []string{"PersonasACargo", "EmpleadorOArriendo", "CondicionEspecial", "CondicionDiscapacidad", "PatologiaAlimenticia"}
 	var keyrequired = []string{"FormatoInscripcion", "CartaADirectora", "CertificadoEstrato", "FotocopiaReciboServicio", "CertificadoIngresos", "ReciboUniversidad"}
-	errP := MainSession.Find(bson.M{"codigo": code}).One(&InfoGeneral)
-	errP = EconomicSession.Find(bson.M{"id": InfoGeneral.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcono)
+	MainSession.Find(bson.M{"codigo": code}).One(&InfoGeneral)
+	errP := EconomicSession.Find(bson.M{"id": InfoGeneral.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcono)
 	if errP == nil {
 		if strings.Compare(InfoEcono.PersACargo, "si") == 0 {
 			keyrequired = append(keyrequired, key[0])
@@ -100,7 +102,7 @@ func GetRequiredFiles(session *mgo.Session, code string) ([]string, error) {
 			keyrequired = append(keyrequired, key[4])
 		}
 	}
-	return keyrequired, errP
+	return &keyrequired, errP
 }
 
 //UpdateStateVerificator - update state later verification of student
@@ -121,10 +123,7 @@ func UpdateStateVerificator(session *mgo.Session, cod string, info Economic) err
 /* Functions Bonus*/
 
 //Rescueinf - Update information model and validate save files
-func Rescueinf(newI Economic, old Economic) ([]string, Economic) {
-
-	//Guarda nombres de archivos que el estudiante subio y no son necesarios
-	var FileExists []string
+func Rescueinf(newI *Economic, old *Economic, FileExists *[]string) {
 
 	//replace old information
 	if strings.Compare(newI.Estrato, "") != 0 {
@@ -147,13 +146,13 @@ func Rescueinf(newI Economic, old Economic) ([]string, Economic) {
 	}
 	if strings.Compare(newI.PersACargo, "") != 0 {
 		if strings.Compare(newI.PersACargo, "no") == 0 {
-			FileExists = append(FileExists, "PersonasACargo")
+			*FileExists = append(*FileExists, "PersonasACargo")
 		}
 		old.PersACargo = newI.PersACargo
 	}
 	if strings.Compare(newI.EmpleadArriendo, "") != 0 {
 		if strings.Compare(newI.EmpleadArriendo, "no") == 0 {
-			FileExists = append(FileExists, "EmpleadorOArriendo")
+			*FileExists = append(*FileExists, "EmpleadorOArriendo")
 		}
 		old.EmpleadArriendo = newI.EmpleadArriendo
 	}
@@ -165,19 +164,19 @@ func Rescueinf(newI Economic, old Economic) ([]string, Economic) {
 	}
 	if strings.Compare(newI.PobEspecial, "") != 0 {
 		if strings.Compare(newI.PobEspecial, "N") == 0 {
-			FileExists = append(FileExists, "CondicionEspecial")
+			*FileExists = append(*FileExists, "CondicionEspecial")
 		}
 		old.PobEspecial = newI.PobEspecial
 	}
 	if strings.Compare(newI.Discapacidad, "") != 0 {
 		if strings.Compare(newI.Discapacidad, "no") == 0 {
-			FileExists = append(FileExists, "CondicionDiscapacidad")
+			*FileExists = append(*FileExists, "CondicionDiscapacidad")
 		}
 		old.Discapacidad = newI.Discapacidad
 	}
 	if strings.Compare(newI.PatAlimenticia, "") != 0 {
 		if strings.Compare(newI.PatAlimenticia, "no") == 0 {
-			FileExists = append(FileExists, "PatologiaAlimenticia")
+			*FileExists = append(*FileExists, "PatologiaAlimenticia")
 		}
 		old.PatAlimenticia = newI.PatAlimenticia
 	}
@@ -196,7 +195,6 @@ func Rescueinf(newI Economic, old Economic) ([]string, Economic) {
 	if strings.Compare(newI.Antiguedad, "") != 0 {
 		old.Antiguedad = newI.Antiguedad
 	}
-	return FileExists, old
 }
 
 //VerificatorUpdate - Update information model

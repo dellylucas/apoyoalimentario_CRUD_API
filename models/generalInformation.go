@@ -40,7 +40,7 @@ func GetStatus(session *mgo.Session, code string) (state int) {
 
 	/*Obtiene el estado del modulo configurado por el Administrador*/
 	ValidateAdministator := db.Cursor(session, utility.CollectionAdministrator)
-	err := ValidateAdministator.Find(nil).One(&ModuleActive)
+	ValidateAdministator.Find(nil).One(&ModuleActive)
 
 	if strings.Compare(StateUniversity.State, "ACTIVO") == 0 && ModuleActive.Moduloactivo == true {
 
@@ -49,14 +49,14 @@ func GetStatus(session *mgo.Session, code string) (state int) {
 		MainSession := db.Cursor(session, utility.CollectionGeneral)
 		EconomicSession := db.Cursor(session, utility.CollectionEconomic)
 		/*Encuentra la informacion general de un estudiante en la BD*/
-		err = MainSession.Find(bson.M{"codigo": code}).One(&InfoGeneral)
+		err := MainSession.Find(bson.M{"codigo": code}).One(&InfoGeneral)
 
 		/*Si no existe la crea con una plantilla por defecto*/
 		if err != nil {
 			InfoGeneral.Codigo = code
 			InfoGeneral.ID = bson.NewObjectId()
 			MainSession.Insert(InfoGeneral)
-			InfoEconomic = TemplatenewEcon(InfoEconomic, InfoGeneral.ID, code)
+			TemplatenewEcon(&InfoEconomic, InfoGeneral.ID, code)
 			EconomicSession.Insert(InfoEconomic)
 			err = nil
 		}
@@ -65,7 +65,7 @@ func GetStatus(session *mgo.Session, code string) (state int) {
 
 		/*Si no existe la crea con una plantilla por defecto*/
 		if err != nil {
-			InfoEconomic = TemplatenewEcon(InfoEconomic, InfoGeneral.ID, code)
+			TemplatenewEcon(&InfoEconomic, InfoGeneral.ID, code)
 			EconomicSession.Insert(InfoEconomic)
 		}
 
@@ -75,7 +75,8 @@ func GetStatus(session *mgo.Session, code string) (state int) {
 		*/
 		if InfoEconomic.EstadoProg == 0 || InfoEconomic.EstadoProg == 4 {
 			var FacultadName XmlFaculty
-			count := 0
+			state = 1 //Estudiante solo puede escoger almuerzo
+
 			/*Obtiene la facultad del estudiante*/
 			utility.GetServiceXML(&FacultadName, utility.FacultyService+code)
 			sedeEstudiante := strings.Replace(FacultadName.NameFaculty, "/", "-", -1)
@@ -83,14 +84,9 @@ func GetStatus(session *mgo.Session, code string) (state int) {
 			/*Iteracion de la configuracion de las sedes las cuales tienen refrigerio  nocturno configuradas por el administrador*/
 			for _, sederefrigerio := range ModuleActive.Refrigerionocturno {
 				if strings.Compare(sederefrigerio, sedeEstudiante) == 0 {
-					count = 1
+					state = 2 //Estudiante puede escoger entre refrigerio o almuerzo
+					break
 				}
-			}
-			//Estudiante puede escoger entre refrigerio o almuerzo
-			if count == 1 {
-				state = 2
-			} else { //Estudiante solo puede escoger almuerzo
-				state = 1
 			}
 		} else { //Estudiante solo puede consultar su informacion no modificar
 			state = -1
@@ -102,7 +98,7 @@ func GetStatus(session *mgo.Session, code string) (state int) {
 		MainSession := db.Cursor(session, utility.CollectionGeneral)
 		EconomicSession := db.Cursor(session, utility.CollectionEconomic)
 
-		err = MainSession.Find(bson.M{"codigo": code}).One(&InfoGeneral)
+		err := MainSession.Find(bson.M{"codigo": code}).One(&InfoGeneral)
 		if err != nil { //Estudiante no esta en BD y fuera de fechas de inscripcion
 			state = 0
 		} else {
@@ -113,7 +109,8 @@ func GetStatus(session *mgo.Session, code string) (state int) {
 				//Si el estudiante fue calificado por un verificador y debe realizar modificaciones es estado 4
 				if InfoEconomic.EstadoProg == 4 {
 					var FacultadName XmlFaculty
-					count := 0
+					state = 1 //Estudiante solo puede escoger almuerzo
+
 					/*Obtiene la facultad del estudiante*/
 					utility.GetServiceXML(&FacultadName, utility.FacultyService+code)
 					sedeEstudiante := strings.Replace(FacultadName.NameFaculty, "/", "-", -1)
@@ -121,14 +118,9 @@ func GetStatus(session *mgo.Session, code string) (state int) {
 					/*Iteracion de la configuracion de las sedes las cuales tienen refrigerio  nocturno configuradas por el administrador*/
 					for _, sederefrigerio := range ModuleActive.Refrigerionocturno {
 						if strings.Compare(sederefrigerio, sedeEstudiante) == 0 {
-							count = 1
+							state = 2 //Estudiante puede escoger entre refrigerio o almuerzo
+							break
 						}
-					}
-					//Estudiante puede escoger entre refrigerio o almuerzo
-					if count == 1 {
-						state = 2
-					} else { //Estudiante solo puede escoger almuerzo
-						state = 1
 					}
 				} else { //Solo lectura de la inscripcion ya hecha
 					state = -1
@@ -146,6 +138,8 @@ func UpdateState(session *mgo.Session, cod string) error {
 	var InfoGeneralU StudentInformation
 	var InfoEcoOldU Economic
 	var salario ConfigurationOptions
+	var ResultRuler string
+
 	MainSession := db.Cursor(session, utility.CollectionGeneral)
 	EconomicSession := db.Cursor(session, utility.CollectionEconomic)
 	BDSMLV := db.Cursor(session, utility.CollectionAdministrator)
@@ -157,21 +151,19 @@ func UpdateState(session *mgo.Session, cod string) error {
 	err = MainSession.Update(bson.M{"codigo": cod}, &InfoGeneralU)
 
 	err = EconomicSession.Find(bson.M{"id": InfoGeneralU.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcoOldU)
-	var ResultRuler string
-	UpdateS := LastState(InfoEcoOldU)
+	LastState(&InfoEcoOldU)
 	/*Ruler MID API*/
-	UpdateS.Salario = strconv.Itoa(salario.Salariominimo)
-	ResultRuler, err = utility.SendJSONToRuler(utility.RulerPath, "PUT", UpdateS)
-	UpdateS = PostRules(UpdateS, ResultRuler)
-	UpdateS.Salario = ""
-	err = EconomicSession.Update(bson.M{"id": InfoGeneralU.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}, &UpdateS)
+	InfoEcoOldU.Salario = strconv.Itoa(salario.Salariominimo)
+	ResultRuler, err = utility.SendJSONToRuler(utility.RulerPath, "PUT", InfoEcoOldU)
+	PostRules(&InfoEcoOldU, ResultRuler)
+	err = EconomicSession.Update(bson.M{"id": InfoGeneralU.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}, &InfoEcoOldU)
 	return err
 }
 
 /* functions Bonus*/
 
 //TemplatenewEcon - create new template for the economic information of students
-func TemplatenewEcon(j Economic, id bson.ObjectId, code string) Economic {
+func TemplatenewEcon(j *Economic, id bson.ObjectId, code string) {
 	var v XmlMatricula
 	utility.GetServiceXML(&v, utility.EnrollmentService+code)
 
@@ -182,11 +174,10 @@ func TemplatenewEcon(j Economic, id bson.ObjectId, code string) Economic {
 	j.SemestreIns = utility.Semester()
 	j.Matricula = v.Value
 	j.TipoSubsidio = "na"
-	return j
 }
 
 //LastState - Update Information economic empty
-func LastState(old Economic) Economic {
+func LastState(old *Economic) {
 
 	old.EstadoProg = 1
 
@@ -196,17 +187,15 @@ func LastState(old Economic) Economic {
 	if strings.Compare(old.Tipoapoyo, "") == 0 || strings.Compare(old.Tipoapoyo, "A") == 0 {
 		old.Tipoapoyo = "Almuerzo"
 	}
-	return old
 }
 
 //PostRules - Update Information economic empty
-func PostRules(old Economic, Ruler string) Economic {
+func PostRules(old *Economic, Ruler string) {
 	if strings.Compare(Ruler, "") == 0 {
 		old.EstadoProg = 0
 	} else {
+		old.TipoSubsidio = Ruler
 		old.EstadoProg = 2
 	}
-	old.TipoSubsidio = Ruler
-
-	return old
+	old.Salario = ""
 }

@@ -22,43 +22,34 @@ type FilesStudents struct {
 }
 
 //Deletefile - check files not used and delete
-func Deletefile(session *mgo.Session, code string, claves []string) {
+func Deletefile(session *mgo.Session, code string, claves *[]string) {
 
 	FileSession := db.Cursor(session, utility.CollectionHistoricFiles)
 	fromDate, toDate := utility.GetInitEnd()
-	count := 0
 	path := utility.FileSavePath + code + "\\" + strconv.Itoa(time.Now().UTC().Year()) + "-" + strconv.Itoa(utility.Semester()) + "\\"
-	for count < len(claves) {
-
-		_ = FileSession.Remove(bson.M{"codigo": code, "nombre": claves[count], "fecha": bson.M{"$gt": fromDate, "$lt": toDate}})
-		_ = os.Remove(path + claves[count] + ".pdf")
-
-		count++
+	for _, element := range *claves {
+		_ = FileSession.Remove(bson.M{"codigo": code, "nombre": element, "fecha": bson.M{"$gt": fromDate, "$lt": toDate}})
+		_ = os.Remove(path + element + ".pdf")
 	}
 }
 
 //Completefile - Check files complete
-func Completefile(session *mgo.Session, code string, clave []string) (int, error) {
+func Completefile(session *mgo.Session, code string, clave *[]string) (*int, error) {
 
 	FileSession := db.Cursor(session, utility.CollectionHistoricFiles)
 	fromDate, toDate := utility.GetInitEnd()
 	var Infofilepath FilesStudents
-	count := 0
-	var result int
+	result := 1
 	var errP error
-	for count < len(clave) {
-
-		errP = FileSession.Find(bson.M{"codigo": code, "nombre": clave[count], "fecha": bson.M{"$gt": fromDate, "$lt": toDate}}).One(&Infofilepath)
+	for _, element := range *clave {
+		errP = FileSession.Find(bson.M{"codigo": code, "nombre": element, "fecha": bson.M{"$gt": fromDate, "$lt": toDate}}).One(&Infofilepath)
 
 		if errP != nil {
-			count = len(clave)
 			result = 0
-		} else {
-			count++
-			result = 1
+			break
 		}
 	}
-	return result, errP
+	return &result, errP
 }
 
 //GetFiles - get all files by code in current semester

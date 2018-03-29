@@ -26,10 +26,8 @@ type EconomicController struct {
 // @router /state/:code  [get]
 func (j *EconomicController) GetState() {
 	code := j.GetString(":code")
-	session, err := db.GetSession()
-	if err != nil || strings.Compare(code, "") == 0 {
-		j.Data["json"] = err.Error()
-	} else {
+	session, _ := db.GetSession()
+	if strings.Compare(code, "") != 0 {
 		state := models.GetStatus(session, code)
 		j.Data["json"] = &state
 	}
@@ -47,17 +45,15 @@ func (j *EconomicController) GetState() {
 func (j *EconomicController) Get() {
 	Code := j.GetString(":code")
 
-	session, err := db.GetSession()
+	session, _ := db.GetSession()
 	defer session.Close()
 
-	if strings.Compare(Code, "") != 0 && err == nil {
-
-		var Infoapoyo models.Economic
-		Infoapoyo, err = models.GetInformationEconomic(session, Code)
+	if strings.Compare(Code, "") != 0 {
+		Infoapoyo, err := models.GetInformationEconomic(session, Code)
 		if err != nil {
 			j.Data["json"] = err.Error()
 		} else {
-			j.Data["json"] = Infoapoyo
+			j.Data["json"] = *Infoapoyo
 		}
 	}
 	j.ServeJSON()
@@ -78,11 +74,10 @@ func (j *EconomicController) Put() {
 	json.Unmarshal(j.Ctx.Input.RequestBody, &InfoEcono)
 	session, _ := db.GetSession()
 
-	keyFileDelete, err := models.UpdateInformationEconomic(session, InfoEcono, Codigo)
-	if len(keyFileDelete) > 0 {
+	keyFileDelete, err := models.UpdateInformationEconomic(session, &InfoEcono, Codigo)
+	if len(*keyFileDelete) > 0 {
 		models.Deletefile(session, Codigo, keyFileDelete)
 	}
-
 	if err != nil {
 		resul = err.Error()
 	}
@@ -104,11 +99,11 @@ func (j *EconomicController) LastPut() {
 	var InfoEcono models.Economic
 
 	json.Unmarshal(j.Ctx.Input.RequestBody, &InfoEcono)
-	session, err := db.GetSession()
+	session, _ := db.GetSession()
 
-	if strings.Compare(code, "") != 0 && err == nil {
-		keyFileDelete, erro := models.UpdateInformationEconomic(session, InfoEcono, code)
-		if len(keyFileDelete) > 0 {
+	if strings.Compare(code, "") != 0 {
+		keyFileDelete, erro := models.UpdateInformationEconomic(session, &InfoEcono, code)
+		if len(*keyFileDelete) > 0 {
 			models.Deletefile(session, code, keyFileDelete)
 		}
 		if erro != nil {
@@ -120,13 +115,13 @@ func (j *EconomicController) LastPut() {
 			} else {
 				files, err := models.Completefile(session, code, values)
 				if err != nil {
-					j.Data["json"] = files
+					j.Data["json"] = *files
 				} else {
 					err = models.UpdateState(session, code)
 					if err != nil {
 						j.Data["json"] = err.Error()
 					} else {
-						j.Data["json"] = files
+						j.Data["json"] = *files
 					}
 				}
 			}

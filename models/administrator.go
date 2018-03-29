@@ -26,7 +26,6 @@ func GetInscription(session *mgo.Session, State string, model *ReportsType) (*[]
 
 	MainSession := db.Cursor(session, utility.CollectionGeneral)
 	i, _ := strconv.Atoi(State)
-	defer session.Close()
 
 	var InfoGeneralComplete []StudentInformation
 

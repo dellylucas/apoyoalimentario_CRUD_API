@@ -36,6 +36,7 @@ func (j *AdministratorController) GetStudents() {
 	modellist.Semestre = utility.Semester()
 	session, _ := db.GetSession()
 	UserType, err := models.GetInscription(session, state, &modellist)
+	defer session.Close()
 	if err != nil {
 		j.Data["json"] = err.Error()
 	} else {
@@ -133,13 +134,14 @@ func (j *AdministratorController) Post() {
 		j.Data["json"] = err.Error()
 	} else {
 		if modelReport.TypeReport == 1 { //Report Generic
-			models.ReportsGeneric(*Students, modelReport.NameSheet, modelReport.Columnas)
+			models.ReportsGeneric(Students, modelReport.NameSheet, &modelReport.Columnas)
 		} else if modelReport.TypeReport == 2 { //Report Score final student
-			models.ReportGeneral(*Students, modelReport.NameSheet)
+			models.ReportGeneral(session, Students, modelReport.NameSheet)
 		} else if modelReport.TypeReport == 3 { //Sisben - ser pilo paga - Totales
-			models.OthersReports(*Students)
+			models.OthersReports(Students)
 		}
 
+		defer session.Close()
 		archi, _ := ioutil.ReadFile("tempfile.xlsx")
 		os.Remove("tempfile.xlsx")
 		j.Ctx.Output.Body(archi)

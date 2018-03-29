@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/tealeg/xlsx"
+	mgo "gopkg.in/mgo.v2"
 )
 
 //ReportsType Struct for map reports
@@ -31,44 +32,41 @@ type MappingColumn struct {
 }
 
 //ReportsGeneric - Generate GENERIC Reports dynamic
-func ReportsGeneric(sa []StudentInformation, NameSheet string, column []int) {
+func ReportsGeneric(sa *[]StudentInformation, NameSheet string, column *[]int) {
 	var file *xlsx.File
 	var sheet *xlsx.Sheet
 	var row *xlsx.Row
-	var Maping []MappingColumn
 	var MapingNow []MappingColumn
 	var err error
 	file = xlsx.NewFile()
 	sheet, err = file.AddSheet(NameSheet)
 
-	Maping = GEtMappingColumn()
-	for numuno := range column {
-		for num := range Maping {
-			if Maping[num].Value == column[numuno] {
-				MapingNow = append(MapingNow, Maping[num])
+	Maping := GEtMappingColumn()
+	for _, numuno := range *column {
+		for _, num := range *Maping {
+			if num.Value == numuno {
+				MapingNow = append(MapingNow, num)
 				break
 			}
 		}
 	}
 	var cell *xlsx.Cell
 	row = sheet.AddRow()
-	for numdo := range MapingNow {
+	for _, numdo := range MapingNow {
 		cell = row.AddCell()
-		cell.Value = MapingNow[numdo].ColumnName
+		cell.Value = numdo.ColumnName
 	}
 	// cell document
 
-	for fil := range sa {
+	for _, fil := range *sa {
 		row = sheet.AddRow()
-		sa[fil] = RescueInformation(sa[fil])
-		for numdo := range MapingNow {
+		RescueInformation(&fil)
+		for _, numdo := range MapingNow {
 			cell = row.AddCell()
 			//reflection
-			MapingNow[numdo] = MapingBD(sa[fil], MapingNow[numdo])
-			if MapingNow[numdo].Result != nil {
-				var temp string
-				temp = ProcessinData(MapingNow[numdo])
-				cell.Value = temp
+			MapingBD(&fil, &numdo)
+			if numdo.Result != nil {
+				cell.Value = ProcessinData(&numdo)
 			}
 		}
 	}
@@ -80,83 +78,74 @@ func ReportsGeneric(sa []StudentInformation, NameSheet string, column []int) {
 }
 
 //ReportGeneral - Generate Reports students
-func ReportGeneral(students []StudentInformation, name string) {
-	session, _ := db.GetSession()
+func ReportGeneral(session *mgo.Session, students *[]StudentInformation, name string) {
 	BDSMLV := db.Cursor(session, utility.CollectionAdministrator)
 	var salario ConfigurationOptions
 	err := BDSMLV.Find(nil).One(&salario)
 	var file *xlsx.File
 	var sheet *xlsx.Sheet
 	var row *xlsx.Row
-	var Maping []MappingColumn
 	var MapingNow []MappingColumn
 	var count int
 	file = xlsx.NewFile()
 	sheet, err = file.AddSheet(name)
 	var column []int
 	column = append(column, 2, 24, 25, 32, 28, 29, 1, 31, 30, 3, 19, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 35, 20, 21, 27, 26, 23, 22, 33, 34, 15, 16)
-	Maping = GEtMappingColumn()
-	for numuno := range column {
-		for num := range Maping {
-			if Maping[num].Value == column[numuno] {
-				MapingNow = append(MapingNow, Maping[num])
+	Maping := GEtMappingColumn()
+	for _, numuno := range column {
+		for _, num := range *Maping {
+			if num.Value == numuno {
+				MapingNow = append(MapingNow, num)
 				break
 			}
 		}
 	}
 	var cell *xlsx.Cell
 	row = sheet.AddRow()
-	for numdo := range MapingNow {
+	for _, numdo := range MapingNow {
 		cell = row.AddCell()
-		cell.Value = MapingNow[numdo].ColumnName
-		if strings.Compare(MapingNow[numdo].Score, "Si") == 0 {
+		cell.Value = numdo.ColumnName
+		if strings.Compare(numdo.Score, "Si") == 0 {
 			cell = row.AddCell()
-			cell.Value = "PUNTAJE " + MapingNow[numdo].ColumnName
+			cell.Value = "PUNTAJE " + numdo.ColumnName
 		}
 	}
 	// cell document
 
-	for fil := range students {
+	for _, fil := range *students {
 		count = 0
 		row = sheet.AddRow()
-		students[fil] = RescueInformation(students[fil])
+		RescueInformation(&fil)
 
-		for numdo := range MapingNow {
+		for _, numdo := range MapingNow {
 			cell = row.AddCell()
-			MapingNow[numdo] = MapingBD(students[fil], MapingNow[numdo])
-			if MapingNow[numdo].Result != nil {
-				var temp string
-				temp = ProcessinData(MapingNow[numdo])
-				cell.Value = temp
-				if strings.Compare(MapingNow[numdo].Score, "Si") == 0 {
-					localcount := 0
+			MapingBD(&fil, &numdo)
+			if numdo.Result != nil {
+				cell.Value = ProcessinData(&numdo)
+				if strings.Compare(numdo.Score, "Si") == 0 {
 					cell = row.AddCell()
-					localcount = Evaluation(MapingNow[numdo], salario.Salariominimo)
+					localcount := Evaluation(&numdo, salario.Salariominimo)
 					count += localcount
 					cell.Value = strconv.Itoa(localcount)
 				}
-
 			}
-			if strings.Compare(MapingNow[numdo].Key, "Total") == 0 {
+			if strings.Compare(numdo.Key, "Total") == 0 {
 				cell.Value = strconv.Itoa(count)
 			}
 		}
 	}
-
 	err = file.Save("tempfile.xlsx")
 	if err != nil {
 		fmt.Printf(err.Error())
 	}
-	defer session.Close()
 }
 
 //OthersReports - Generate Reports students
-func OthersReports(students []StudentInformation) {
+func OthersReports(students *[]StudentInformation) {
 
 	var file *xlsx.File
 	var sheet *xlsx.Sheet
 	var row *xlsx.Row
-	var Maping []MappingColumn
 	var MapingNow []MappingColumn
 	file = xlsx.NewFile()
 
@@ -164,11 +153,11 @@ func OthersReports(students []StudentInformation) {
 	sheet, err := file.AddSheet("Sisben")
 	var column []int
 	column = append(column, 1, 25, 31, 30)
-	Maping = GEtMappingColumn()
-	for numuno := range column {
-		for num := range Maping {
-			if Maping[num].Value == column[numuno] {
-				MapingNow = append(MapingNow, Maping[num])
+	Maping := GEtMappingColumn()
+	for _, numuno := range column {
+		for _, num := range *Maping {
+			if num.Value == numuno {
+				MapingNow = append(MapingNow, num)
 				break
 			}
 		}
@@ -176,23 +165,23 @@ func OthersReports(students []StudentInformation) {
 	//name Columns
 	var cell *xlsx.Cell
 	row = sheet.AddRow()
-	for numdo := range MapingNow {
+	for _, numdo := range MapingNow {
 		cell = row.AddCell()
-		cell.Value = MapingNow[numdo].ColumnName
+		cell.Value = numdo.ColumnName
 	}
 
 	// cell document
-	for fil := range students {
-		if strings.Compare(students[fil].Informacioneconomica[0].Sisben, "no") == 0 {
+	for _, fil := range *students {
+		if strings.Compare(fil.Informacioneconomica[0].Sisben, "no") == 0 {
 			continue
 		}
 		row = sheet.AddRow()
-		students[fil] = RescueInformation(students[fil])
-		for numdo := range MapingNow {
+		RescueInformation(&fil)
+		for _, numdo := range MapingNow {
 			cell = row.AddCell()
-			MapingNow[numdo] = MapingBD(students[fil], MapingNow[numdo])
-			if MapingNow[numdo].Result != nil {
-				cell.Value = MapingNow[numdo].Result.(string)
+			MapingBD(&fil, &numdo)
+			if numdo.Result != nil {
+				cell.Value = numdo.Result.(string)
 			}
 		}
 	}
@@ -202,23 +191,23 @@ func OthersReports(students []StudentInformation) {
 	//name Columns
 	var celldos *xlsx.Cell
 	row = sheet.AddRow()
-	for numdo := range MapingNow {
+	for _, numdo := range MapingNow {
 		celldos = row.AddCell()
-		celldos.Value = MapingNow[numdo].ColumnName
+		celldos.Value = numdo.ColumnName
 	}
 
 	// cell document
-	for fil := range students {
-		if strings.Compare(students[fil].Informacioneconomica[0].SerPiloPaga, "no") == 0 {
+	for _, fil := range *students {
+		if strings.Compare(fil.Informacioneconomica[0].SerPiloPaga, "no") == 0 {
 			continue
 		}
 		row = sheet.AddRow()
-		students[fil] = RescueInformation(students[fil])
-		for numdo := range MapingNow {
+		RescueInformation(&fil)
+		for _, numdo := range MapingNow {
 			celldos = row.AddCell()
-			MapingNow[numdo] = MapingBD(students[fil], MapingNow[numdo])
-			if MapingNow[numdo].Result != nil {
-				celldos.Value = MapingNow[numdo].Result.(string)
+			MapingBD(&fil, &numdo)
+			if numdo.Result != nil {
+				celldos.Value = numdo.Result.(string)
 			}
 		}
 	}
@@ -244,8 +233,8 @@ func OthersReports(students []StudentInformation) {
 	var TB int   // count TIPO B
 	var TT int   // count SUBSIDIO TOTAL
 	// cell document
-	for fil := range students {
-		switch os := students[fil].Informacioneconomica[0].TipoSubsidio; os {
+	for _, fil := range *students {
+		switch os := fil.Informacioneconomica[0].TipoSubsidio; os {
 		case "t":
 			TT++
 		case "a":
@@ -282,6 +271,11 @@ func MakeThing(Col string, Val int, Keys string) MappingColumn {
 //MakeThingD - Construc of model
 func MakeThingD(Col string, Val int, Keys string, Score string) MappingColumn {
 	return MappingColumn{Col, Val, Keys, "", Score}
+}
+
+//MapingBD - map BD to Collumn Dynamic
+func MapingBD(sa *StudentInformation, values *MappingColumn) {
+	values.Result = sa.reflect(values.Key)
 }
 
 // reflection information general
@@ -323,14 +317,8 @@ func (f *Economic) reflectEcono(ret string) interface{} {
 	return res
 }
 
-//MapingBD - map BD to Collumn Dynamic
-func MapingBD(sa StudentInformation, values MappingColumn) MappingColumn {
-	values.Result = sa.reflect(values.Key)
-	return values
-}
-
 //RescueInformation - rescue information of student
-func RescueInformation(sa StudentInformation) StudentInformation {
+func RescueInformation(sa *StudentInformation) {
 	var ModelFacult XmlFaculty
 	var ModelBasic XmlBasic
 	var ModelAcademic XmlAcademic
@@ -347,19 +335,18 @@ func RescueInformation(sa StudentInformation) StudentInformation {
 	sa.Proyecto = ModelFacult.Proyecto
 	sa.Semestre = ModelAcademic.Semestre
 	sa.Promedio = ModelAcademic.Promedio
-	return sa
 }
 
 //Evaluation  - evaluate bussines rules
-func Evaluation(maping MappingColumn, salario int) int {
+func Evaluation(maping *MappingColumn, salario int) int {
 	i := 0
-	if strings.Compare(maping.Key, "Estrato") == 0 {
+	switch con := maping.Key; con {
+	case "Estrato":
 		conv, _ := strconv.Atoi(maping.Result.(string))
 		if conv <= 3 {
 			i = 10
 		}
-	}
-	if strings.Compare(maping.Key, "Matricula") == 0 {
+	case "Matricula":
 		conv, _ := strconv.Atoi(maping.Result.(string))
 		if conv <= 200000 {
 			i = 20
@@ -372,8 +359,7 @@ func Evaluation(maping MappingColumn, salario int) int {
 		} else if conv <= 900000 {
 			i = 4
 		}
-	}
-	if strings.Compare(maping.Key, "Ingresos") == 0 {
+	case "Ingresos":
 		conv, _ := strconv.Atoi(maping.Result.(string))
 		if conv <= salario {
 			i = 30
@@ -386,58 +372,49 @@ func Evaluation(maping MappingColumn, salario int) int {
 		} else {
 			i = 0
 		}
-
-	}
-	if strings.Compare(maping.Key, "SostePropia") == 0 {
+	case "SostePropia":
 		if strings.Compare(maping.Result.(string), "si") == 0 {
 			i = 5
 		}
-	}
-	if strings.Compare(maping.Key, "SosteHogar") == 0 {
+	case "SosteHogar":
 		if strings.Compare(maping.Result.(string), "si") == 0 {
 			i = 5
 		}
-	}
-	if strings.Compare(maping.Key, "Nucleofam") == 0 {
+	case "Nucleofam":
 		if strings.Compare(maping.Result.(string), "si") == 0 {
 			i = 4
 		}
-	}
-	if strings.Compare(maping.Key, "PersACargo") == 0 {
+	case "PersACargo":
 		if strings.Compare(maping.Result.(string), "si") == 0 {
 			i = 6
 		}
-	}
-	if strings.Compare(maping.Key, "EmpleadArriendo") == 0 {
+	case "EmpleadArriendo":
 		if strings.Compare(maping.Result.(string), "si") == 0 {
 			i = 5
 		}
-	}
-	if strings.Compare(maping.Key, "ProvBogota") == 0 {
+	case "ProvBogota":
 		if strings.Compare(maping.Result.(string), "si") == 0 {
 			i = 5
 		}
-	}
-	if strings.Compare(maping.Key, "PobEspecial") == 0 {
+	case "PobEspecial":
 		if strings.Compare(maping.Result.(string), "D") == 0 || strings.Compare(maping.Result.(string), "I") == 0 || strings.Compare(maping.Result.(string), "M") == 0 || strings.Compare(maping.Result.(string), "A") == 0 || strings.Compare(maping.Result.(string), "MC") == 0 {
 			i = 5
 		}
-	}
-	if strings.Compare(maping.Key, "Discapacidad") == 0 {
+	case "Discapacidad":
+		if strings.Compare(maping.Result.(string), "si") == 0 {
+			i = 5
+		}
+	case "PatAlimenticia":
 		if strings.Compare(maping.Result.(string), "si") == 0 {
 			i = 5
 		}
 	}
-	if strings.Compare(maping.Key, "PatAlimenticia") == 0 {
-		if strings.Compare(maping.Result.(string), "si") == 0 {
-			i = 5
-		}
-	}
+
 	return i
 }
 
 //ProcessinData  - evaluate bussines rules
-func ProcessinData(data MappingColumn) string {
+func ProcessinData(data *MappingColumn) string {
 	var temp string
 	temp = data.Result.(string)
 
@@ -473,7 +450,7 @@ func ProcessinData(data MappingColumn) string {
 }
 
 //GEtMappingColumn - Get values Metadata for reports
-func GEtMappingColumn() []MappingColumn {
+func GEtMappingColumn() *[]MappingColumn {
 	var Global []MappingColumn
 
 	Global = append(Global, MakeThing("CODIGO", 1, "Codigo"))
@@ -512,5 +489,5 @@ func GEtMappingColumn() []MappingColumn {
 	Global = append(Global, MakeThing("SEMESTRE", 33, "Semestre"))
 	Global = append(Global, MakeThing("PROMEDIO", 34, "Promedio"))
 	Global = append(Global, MakeThing("TOTAL PUNTAJE", 35, "Total"))
-	return Global
+	return &Global
 }

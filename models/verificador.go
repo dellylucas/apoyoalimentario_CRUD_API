@@ -18,24 +18,24 @@ type Sede struct {
 }
 
 //GetVerifier -
-func GetVerifier(session *mgo.Session) ([]Sede, error) {
+func GetVerifier(session *mgo.Session) (*[]Sede, error) {
 	MainSession := db.Cursor(session, utility.CollectionAdministrator)
 
 	var SedeVerif []Sede
 
 	err := MainSession.Find(bson.M{"name": "verificadores"}).All(&SedeVerif)
 
-	return SedeVerif, err
+	return &SedeVerif, err
 }
 
 //UpdateVerifier -
-func UpdateVerifier(session *mgo.Session, newInfo []Sede) error {
+func UpdateVerifier(session *mgo.Session, newInfo *[]Sede) error {
 	MainSession := db.Cursor(session, utility.CollectionAdministrator)
 	var err error
 	err = nil
 	var OldInfo Sede
 	MainSession.RemoveAll(bson.M{"name": "verificadores"})
-	for _, element := range newInfo {
+	for _, element := range *newInfo {
 		err = MainSession.Find(bson.M{"name": "verificadores", "nombre": element.Nombre}).One(&OldInfo)
 		if err != nil {
 			element.Name = "verificadores"
@@ -49,7 +49,7 @@ func UpdateVerifier(session *mgo.Session, newInfo []Sede) error {
 }
 
 //GetSede - Get sedes of verifiers
-func GetSede(session *mgo.Session, name string) ([]string, error) {
+func GetSede(session *mgo.Session, name string) (*[]string, error) {
 	MainSession := db.Cursor(session, utility.CollectionAdministrator)
 
 	var SedeVerif []Sede
@@ -59,9 +59,10 @@ func GetSede(session *mgo.Session, name string) ([]string, error) {
 		for _, verifi := range element.Verificadores {
 			if strings.Compare(name, verifi) == 0 {
 				sedes = append(sedes, element.Nombre)
+				break
 			}
 		}
 	}
 
-	return sedes, err
+	return &sedes, err
 }

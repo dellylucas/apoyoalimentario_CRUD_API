@@ -53,14 +53,14 @@ func Completefile(session *mgo.Session, code string, clave *[]string) (*int, err
 }
 
 //GetFiles - get all files by code in current semester
-func GetFiles(session *mgo.Session, code string) ([]FilesStudents, error) {
+func GetFiles(session *mgo.Session, code string) (*[]FilesStudents, error) {
 
 	FileSession := db.Cursor(session, utility.CollectionHistoricFiles)
 	fromDate, toDate := utility.GetInitEnd()
 	defer session.Close()
 	var Infofilepath []FilesStudents
 	errP := FileSession.Find(bson.M{"codigo": code, "fecha": bson.M{"$gt": fromDate, "$lt": toDate}}).All(&Infofilepath)
-	return Infofilepath, errP
+	return &Infofilepath, errP
 }
 
 //Insertfile - Insert file(s) in path

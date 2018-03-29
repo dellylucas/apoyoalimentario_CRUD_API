@@ -30,31 +30,27 @@ func (u *FileController) Post() {
 	code := getcode["cod"][0]
 	if code != "" {
 		path := utility.FileSavePath + code + "\\" + strconv.Itoa(time.Now().UTC().Year()) + "-" + strconv.Itoa(utility.Semester()) + "\\"
-		err := os.MkdirAll(path, 0777)
-		if err != nil {
-			u.Data["json"] = err.Error()
-		}
+		os.MkdirAll(path, 0777)
 		state := ""
 		session, _ := db.GetSession()
 		getfiles := u.Ctx.Request.MultipartForm.File
 		//get files
-		for fil := range getfiles {
-			if len(fil) > 0 {
-				arre := getfiles[fil]
-				/*Archivos pdf y menores de 500 KB se guardan en servidor y en historico BD*/
-				if arre[0].Header["Content-Type"][0] == "application/pdf" && arre[0].Size < 512050 {
-					u.SaveToFile(fil, path+fil+".pdf")
-					models.Insertfile(session, fil, arre[0].Size, code)
-				} else { /*Error al subir documento*/
-					state += arre[0].Filename + "/"
-				}
+		for fil, arch := range getfiles {
+
+			/*Archivos pdf y menores de 500 KB se guardan en servidor y en historico BD*/
+			if arch[0].Header["Content-Type"][0] == "application/pdf" && arch[0].Size < 512050 {
+				u.SaveToFile(fil, path+fil+".pdf")
+				models.Insertfile(session, fil, arch[0].Size, code)
+			} else { /*Error al subir documento*/
+				state += arch[0].Filename + "/"
 			}
+
 		}
 		defer session.Close()
 		u.Data["json"] = state
 
 	} else {
-		u.Data["json"] = "Error Sin sesion"
+		u.Data["json"] = "Error"
 	}
 	u.ServeJSON()
 }
@@ -69,13 +65,11 @@ func (u *FileController) Post() {
 func (u *FileController) Get() {
 	code := u.GetString(":code")
 	session, _ := db.GetSession()
-	if code != "" {
-		Infofiles, err := models.GetFiles(session, code)
-		if err != nil {
-			u.Data["json"] = err.Error()
-		} else {
-			u.Data["json"] = Infofiles
-		}
+	Infofiles, err := models.GetFiles(session, code)
+	if err != nil {
+		u.Data["json"] = err.Error()
+	} else {
+		u.Data["json"] = *Infofiles
 	}
 	u.ServeJSON()
 }

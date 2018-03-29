@@ -106,7 +106,7 @@ func GetRequiredFiles(session *mgo.Session, code string) (*[]string, error) {
 }
 
 //UpdateStateVerificator - update state later verification of student
-func UpdateStateVerificator(session *mgo.Session, cod string, info Economic) error {
+func UpdateStateVerificator(session *mgo.Session, cod string, info *Economic) error {
 	var InfoGeneralU StudentInformation
 	var InfoEcoOldU Economic
 	MainSession := db.Cursor(session, utility.CollectionGeneral)
@@ -114,8 +114,8 @@ func UpdateStateVerificator(session *mgo.Session, cod string, info Economic) err
 
 	MainSession.Find(bson.M{"codigo": cod}).One(&InfoGeneralU)
 	err := EconomicSession.Find(bson.M{"id": InfoGeneralU.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcoOldU)
-	UpdateS := VerificatorUpdate(info, InfoEcoOldU)
-	err = EconomicSession.Update(bson.M{"id": InfoGeneralU.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}, &UpdateS)
+	VerificatorUpdate(info, &InfoEcoOldU)
+	err = EconomicSession.Update(bson.M{"id": InfoGeneralU.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}, &InfoEcoOldU)
 
 	return err
 }
@@ -198,12 +198,11 @@ func Rescueinf(newI *Economic, old *Economic, FileExists *[]string) {
 }
 
 //VerificatorUpdate - Update information model
-func VerificatorUpdate(newI Economic, old Economic) Economic {
+func VerificatorUpdate(newI *Economic, old *Economic) {
 
 	old.EstadoProg = newI.EstadoProg
 	old.Verificadopor = newI.Verificadopor
 	if strings.Compare(newI.Mensaje, "") != 0 {
 		old.Mensaje = newI.Mensaje
 	}
-	return old
 }

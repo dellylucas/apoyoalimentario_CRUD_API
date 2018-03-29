@@ -35,11 +35,11 @@ func (j *AdministratorController) GetStudents() {
 	modellist.Periodo = time.Now().UTC().Year()
 	modellist.Semestre = utility.Semester()
 	session, _ := db.GetSession()
-	UserType, err := models.GetInscription(session, state, modellist)
+	UserType, err := models.GetInscription(session, state, &modellist)
 	if err != nil {
 		j.Data["json"] = err.Error()
 	} else {
-		j.Data["json"] = UserType
+		j.Data["json"] = *UserType
 	}
 
 	j.ServeJSON()
@@ -58,7 +58,7 @@ func (j *AdministratorController) GetConfig() {
 	if err != nil {
 		j.Data["json"] = err.Error()
 	} else {
-		j.Data["json"] = Configuration
+		j.Data["json"] = *Configuration
 	}
 
 	j.ServeJSON()
@@ -77,7 +77,7 @@ func (j *AdministratorController) PutConfig() {
 	json.Unmarshal(j.Ctx.Input.RequestBody, &InfoConfig)
 	session, _ := db.GetSession()
 
-	erro := models.UpdateInformationConfig(session, InfoConfig)
+	erro := models.UpdateInformationConfig(session, &InfoConfig)
 
 	if erro != nil {
 		resul = erro.Error()
@@ -100,7 +100,7 @@ func (j *AdministratorController) PutState() {
 
 	json.Unmarshal(j.Ctx.Input.RequestBody, &InfoEcono)
 	session, _ := db.GetSession()
-	err := models.UpdateStateVerificator(session, code, InfoEcono)
+	err := models.UpdateStateVerificator(session, code, &InfoEcono)
 	if err != nil {
 		j.Data["json"] = err.Error()
 	} else {
@@ -125,7 +125,7 @@ func (j *AdministratorController) Post() {
 	session, _ := db.GetSession()
 
 	//Get students in state 3 -> verified ok
-	Students, err := models.GetInscription(session, "3", modelReport)
+	Students, err := models.GetInscription(session, "3", &modelReport)
 	//Report Generic
 
 	if err != nil {
@@ -133,11 +133,11 @@ func (j *AdministratorController) Post() {
 		j.Data["json"] = err.Error()
 	} else {
 		if modelReport.TypeReport == 1 { //Report Generic
-			models.ReportsGeneric(Students, modelReport.NameSheet, modelReport.Columnas)
+			models.ReportsGeneric(*Students, modelReport.NameSheet, modelReport.Columnas)
 		} else if modelReport.TypeReport == 2 { //Report Score final student
-			models.ReportGeneral(Students, modelReport.NameSheet)
+			models.ReportGeneral(*Students, modelReport.NameSheet)
 		} else if modelReport.TypeReport == 3 { //Sisben - ser pilo paga - Totales
-			models.OthersReports(Students)
+			models.OthersReports(*Students)
 		}
 
 		archi, _ := ioutil.ReadFile("tempfile.xlsx")
@@ -155,13 +155,12 @@ func (j *AdministratorController) Post() {
 // @router /verifier [get]
 func (j *AdministratorController) GetVerif() {
 	session, _ := db.GetSession()
-
 	SedeVerif, err := models.GetVerifier(session)
 
 	if err != nil {
 		j.Data["json"] = err.Error()
 	} else {
-		j.Data["json"] = SedeVerif
+		j.Data["json"] = *SedeVerif
 	}
 
 	j.ServeJSON()
@@ -179,7 +178,7 @@ func (j *AdministratorController) PutVerif() {
 
 	json.Unmarshal(j.Ctx.Input.RequestBody, &InfoVerif)
 	session, _ := db.GetSession()
-	err := models.UpdateVerifier(session, InfoVerif)
+	err := models.UpdateVerifier(session, &InfoVerif)
 	if err != nil {
 		j.Data["json"] = err.Error()
 	} else {
@@ -205,7 +204,7 @@ func (j *AdministratorController) Getsede() {
 	if err != nil {
 		j.Data["json"] = err.Error()
 	} else {
-		j.Data["json"] = SedeVerif
+		j.Data["json"] = *SedeVerif
 	}
 
 	j.ServeJSON()

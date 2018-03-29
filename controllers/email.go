@@ -26,7 +26,7 @@ func (j *EmailController) GetConfig() {
 	if err != nil {
 		j.Data["json"] = err.Error()
 	} else {
-		j.Data["json"] = Configuration
+		j.Data["json"] = *Configuration
 	}
 
 	j.ServeJSON()
@@ -45,13 +45,12 @@ func (j *EmailController) PutConfig() {
 	json.Unmarshal(j.Ctx.Input.RequestBody, &InfoConfig)
 	session, _ := db.GetSession()
 
-	erro := models.UpdateEmailConfig(session, InfoConfig)
+	erro := models.UpdateEmailConfig(session, &InfoConfig)
 
 	if erro != nil {
 		resul = erro.Error()
 	}
 	j.Data["json"] = resul
-	defer session.Close()
 	j.ServeJSON()
 }
 
@@ -66,7 +65,7 @@ func (j *EmailController) PutEmail() {
 	var InfoToSend models.BodyEmail
 	session, _ := db.GetSession()
 	json.Unmarshal(j.Ctx.Input.RequestBody, &InfoToSend)
-	err := models.EmailSender(InfoToSend, session)
+	err := models.EmailSender(&InfoToSend, session)
 
 	j.Data["json"] = "ok"
 	defer session.Close()
@@ -86,7 +85,7 @@ func (j *EmailController) TestEmail() {
 
 	var TestToSend models.Email
 	json.Unmarshal(j.Ctx.Input.RequestBody, &TestToSend)
-	err := models.TestConnection(TestToSend)
+	err := models.TestConnection(&TestToSend)
 
 	j.Data["json"] = "Conexion exitosa!"
 	if err != nil {

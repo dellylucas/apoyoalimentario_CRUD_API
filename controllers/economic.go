@@ -29,7 +29,7 @@ func (j *EconomicController) GetState() {
 	session, _ := db.GetSession()
 	if strings.Compare(code, "") != 0 {
 		state := models.GetStatus(session, code)
-		j.Data["json"] = &state
+		j.Data["json"] = state
 	}
 	defer session.Close()
 	j.ServeJSON()

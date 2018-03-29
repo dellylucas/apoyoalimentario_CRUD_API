@@ -32,30 +32,25 @@ type BodyEmail struct {
 }
 
 //SearchInfor - get configuration of email
-func SearchInfor(session *mgo.Session) (Email, error) {
+func SearchInfor(session *mgo.Session) (*Email, error) {
 	MainSession := db.Cursor(session, utility.CollectionAdministrator)
 	var InfoConfig Email
 	errd := MainSession.Find(bson.M{"name": "email"}).One(&InfoConfig)
 	if errd != nil {
 		panic(errd)
 	}
-	return InfoConfig, errd
+	return &InfoConfig, errd
 }
 
 //EmailSender - send email
-func EmailSender(Bod BodyEmail, session *mgo.Session) error {
+func EmailSender(Bod *BodyEmail, session *mgo.Session) error {
 	var Info Email
 	MainSession := db.Cursor(session, utility.CollectionAdministrator)
 	err := MainSession.Find(bson.M{"name": "email"}).One(&Info)
 	if err == nil {
 		d := gomail.NewDialer(Info.Server, Info.Port, Info.EmailCon, Info.Pass)
-
-		if Info.SecuritySSL == true {
-			d.SSL = true
-		}
-		if Info.SecurityTLS == true {
-			d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
-		}
+		d.SSL = Info.SecuritySSL
+		d.TLSConfig = &tls.Config{InsecureSkipVerify: Info.SecurityTLS}
 
 		s, err := d.Dial()
 		if err == nil {
@@ -65,6 +60,9 @@ func EmailSender(Bod BodyEmail, session *mgo.Session) error {
 			m.SetHeader("Subject", Info.Subject)
 			m.SetBody("text/html", fmt.Sprintf(Bod.EBody+"<br><br> <strong>"+Info.Text+"</strong>"))
 			err = gomail.Send(s, m)
+			if err != nil {
+				gomail.Send(s, m)
+			}
 			m.Reset()
 		}
 	}
@@ -73,24 +71,17 @@ func EmailSender(Bod BodyEmail, session *mgo.Session) error {
 }
 
 //TestConnection - test conn
-func TestConnection(Info Email) error {
+func TestConnection(Info *Email) error {
 
 	d := gomail.NewDialer(Info.Server, Info.Port, Info.EmailCon, Info.Pass)
-
-	if Info.SecuritySSL == true {
-		d.SSL = true
-	}
-	if Info.SecurityTLS == true {
-		d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
-	}
-
+	d.SSL = Info.SecuritySSL
+	d.TLSConfig = &tls.Config{InsecureSkipVerify: Info.SecurityTLS}
 	_, err := d.Dial()
-
 	return err
 }
 
 //UpdateEmailConfig - Update the information email
-func UpdateEmailConfig(session *mgo.Session, newInfo Email) error {
+func UpdateEmailConfig(session *mgo.Session, newInfo *Email) error {
 	BDMessage := db.Cursor(session, utility.CollectionAdministrator)
 	newInfo.Name = "email"
 	defer session.Close()

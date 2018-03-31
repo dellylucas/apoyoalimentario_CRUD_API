@@ -90,13 +90,13 @@ func Getname(model *[]StudentInformation, SedeChecker string) []StudentInformati
 	var Getinfo []StudentInformation
 	var ModelFacul XmlFaculty
 
-	for _, fil := range *model {
-		utility.GetServiceXML(&ModelFacul, utility.FacultyService+fil.Codigo)
+	for _, student := range *model {
+		utility.GetServiceXML(&ModelFacul, utility.FacultyService+student.Codigo, nil)
 		facultadEstudiante := strings.Replace(ModelFacul.NameFaculty, "/", "-", -1)
-		if strings.Compare(SedeChecker, facultadEstudiante) == 0 && len(fil.Informacioneconomica) > 0 {
-			utility.GetServiceXML(&ModelBasic, utility.BasicService+fil.Codigo)
-			fil.Nombre = ModelBasic.Name
-			Getinfo = append(Getinfo, fil)
+		if strings.Compare(SedeChecker, facultadEstudiante) == 0 && len(student.Informacioneconomica) > 0 {
+			utility.GetServiceXML(&ModelBasic, utility.BasicService+student.Codigo, nil)
+			student.Nombre = ModelBasic.Name
+			Getinfo = append(Getinfo, student)
 		}
 	}
 	return Getinfo

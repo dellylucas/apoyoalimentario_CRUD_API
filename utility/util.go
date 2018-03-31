@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/astaxie/beego"
@@ -26,7 +27,7 @@ func Semester() (round int) {
 }
 
 //GetServiceXML - Obtiene datos desde una URL de un servicio XML
-func GetServiceXML(T interface{}, url string) error {
+func GetServiceXML(T interface{}, url string, wg *sync.WaitGroup) error {
 
 	response, err := http.Get(url)
 	if err != nil {
@@ -42,6 +43,9 @@ func GetServiceXML(T interface{}, url string) error {
 		return fmt.Errorf("Read body: %v", err)
 	}
 	xml.Unmarshal(data, &T)
+	if wg != nil {
+		wg.Done()
+	}
 	return err
 }
 

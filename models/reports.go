@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/tealeg/xlsx"
 	mgo "gopkg.in/mgo.v2"
@@ -319,12 +320,15 @@ func (f *Economic) reflectEcono(ret string) interface{} {
 
 //RescueInformation - rescue information of student
 func RescueInformation(sa *StudentInformation) {
+	var wg sync.WaitGroup
+	wg.Add(3)
 	var ModelFacult XmlFaculty
 	var ModelBasic XmlBasic
 	var ModelAcademic XmlAcademic
-	utility.GetServiceXML(&ModelFacult, utility.FacultyService+sa.Codigo)
-	utility.GetServiceXML(&ModelBasic, utility.BasicService+sa.Codigo)
-	utility.GetServiceXML(&ModelAcademic, utility.AcademicService+sa.Codigo)
+	go utility.GetServiceXML(&ModelFacult, utility.FacultyService+sa.Codigo, &wg)
+	go utility.GetServiceXML(&ModelBasic, utility.BasicService+sa.Codigo, &wg)
+	go utility.GetServiceXML(&ModelAcademic, utility.AcademicService+sa.Codigo, &wg)
+	wg.Wait()
 	sa.Nombre = ModelBasic.Name
 	sa.Localidad = ModelBasic.Localidad
 	sa.Direccion = ModelBasic.Direccion

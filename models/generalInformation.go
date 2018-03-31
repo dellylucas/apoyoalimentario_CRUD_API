@@ -36,7 +36,7 @@ func GetStatus(session *mgo.Session, code string) (state int) {
 	var ModuleActive ConfigurationOptions
 
 	/*obtiene el estado de un estudiante ACTIVO O INACTIVO*/
-	utility.GetServiceXML(&StateUniversity, utility.StateService+code)
+	utility.GetServiceXML(&StateUniversity, utility.StateService+code, nil)
 
 	/*Obtiene el estado del modulo configurado por el Administrador*/
 	ValidateAdministator := db.Cursor(session, utility.CollectionAdministrator)
@@ -78,7 +78,7 @@ func GetStatus(session *mgo.Session, code string) (state int) {
 			state = 1 //Estudiante solo puede escoger almuerzo
 
 			/*Obtiene la facultad del estudiante*/
-			utility.GetServiceXML(&FacultadName, utility.FacultyService+code)
+			utility.GetServiceXML(&FacultadName, utility.FacultyService+code, nil)
 			sedeEstudiante := strings.Replace(FacultadName.NameFaculty, "/", "-", -1)
 
 			/*Iteracion de la configuracion de las sedes las cuales tienen refrigerio  nocturno configuradas por el administrador*/
@@ -112,7 +112,7 @@ func GetStatus(session *mgo.Session, code string) (state int) {
 					state = 1 //Estudiante solo puede escoger almuerzo
 
 					/*Obtiene la facultad del estudiante*/
-					utility.GetServiceXML(&FacultadName, utility.FacultyService+code)
+					utility.GetServiceXML(&FacultadName, utility.FacultyService+code, nil)
 					sedeEstudiante := strings.Replace(FacultadName.NameFaculty, "/", "-", -1)
 
 					/*Iteracion de la configuracion de las sedes las cuales tienen refrigerio  nocturno configuradas por el administrador*/
@@ -165,7 +165,7 @@ func UpdateState(session *mgo.Session, cod string) error {
 //TemplatenewEcon - create new template for the economic information of students
 func TemplatenewEcon(j *Economic, id bson.ObjectId, code string) {
 	var v XmlMatricula
-	utility.GetServiceXML(&v, utility.EnrollmentService+code)
+	utility.GetServiceXML(&v, utility.EnrollmentService+code, nil)
 
 	j.EstadoProg = 0
 	j.ID = bson.NewObjectId()

@@ -61,7 +61,7 @@ func EmailSender(Bod *BodyEmail, session *mgo.Session) error {
 			m.SetBody("text/html", fmt.Sprintf(Bod.EBody+"<br><br> <strong>"+Info.Text+"</strong>"))
 			err = gomail.Send(s, m)
 			if err != nil {
-				gomail.Send(s, m)
+				err = gomail.Send(s, m)
 			}
 			m.Reset()
 		}

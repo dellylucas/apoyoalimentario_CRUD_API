@@ -33,4 +33,4 @@ en el archivo utility/contants.go<br>
 # Para desplegar
 Debe ejecutar una vez instalado Go y Beego, el comando bee run para ejecutarlo en un servidor local, la aplicación corre por defecto en http://localhost:8086/.
 
-Si desea cambiarla, modifique la propiedad baseURL del archivo httpport esta ubicado en la carpeta conf del proyecto.
+Si desea cambiarla, modifique la propiedad httpport del archivo app.conf esta ubicado en la carpeta conf del proyecto.

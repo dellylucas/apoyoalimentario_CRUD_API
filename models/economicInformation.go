@@ -39,7 +39,6 @@ type Economic struct {
 	Correo          string        `json:"correo" bson:"correo"`
 	Antiguedad      string        `json:"antiguedad" bson:"antiguedad"`
 	Verificadopor   string        `json:"verificadopor" bson:"verificadopor"`
-	Salario         string        `json:",omitempty" bson:",omitempty"`
 }
 
 //GetInformationEconomic - get information economic current semester by code
@@ -124,7 +123,7 @@ func UpdateStateVerificator(session *mgo.Session, cod string, info *Economic) er
 
 //Rescueinf - Update information model and validate save files
 func Rescueinf(newI *Economic, old *Economic, FileExists *[]string) {
-
+	old.EstadoProg = newI.EstadoProg
 	//replace old information
 	if strings.Compare(newI.Estrato, "") != 0 {
 		old.Estrato = newI.Estrato
@@ -195,13 +194,19 @@ func Rescueinf(newI *Economic, old *Economic, FileExists *[]string) {
 	if strings.Compare(newI.Antiguedad, "") != 0 {
 		old.Antiguedad = newI.Antiguedad
 	}
+
+	if strings.Compare(newI.TipoSubsidio, "") != 0 {
+		old.TipoSubsidio = newI.TipoSubsidio
+	}
 }
 
 //VerificatorUpdate - Update information model
 func VerificatorUpdate(newI *Economic, old *Economic) {
 
 	old.EstadoProg = newI.EstadoProg
-	old.Verificadopor = newI.Verificadopor
+	if strings.Compare(newI.Verificadopor, "") != 0 {
+		old.Verificadopor = newI.Verificadopor
+	}
 	if strings.Compare(newI.Mensaje, "") != 0 {
 		old.Mensaje = newI.Mensaje
 	}

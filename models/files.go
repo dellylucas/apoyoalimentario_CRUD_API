@@ -34,22 +34,19 @@ func Deletefile(session *mgo.Session, code string, claves *[]string) {
 }
 
 //Completefile - Check files complete
-func Completefile(session *mgo.Session, code string, clave *[]string) (*int, error) {
+func Completefile(session *mgo.Session, code string, clave *[]string) error {
 
 	FileSession := db.Cursor(session, utility.CollectionHistoricFiles)
 	fromDate, toDate := utility.GetInitEnd()
 	var Infofilepath FilesStudents
-	result := 1
 	var errP error
 	for _, element := range *clave {
 		errP = FileSession.Find(bson.M{"codigo": code, "nombre": element, "fecha": bson.M{"$gt": fromDate, "$lt": toDate}}).One(&Infofilepath)
-
 		if errP != nil {
-			result = 0
 			break
 		}
 	}
-	return &result, errP
+	return errP
 }
 
 //GetFiles - get all files by code in current semester

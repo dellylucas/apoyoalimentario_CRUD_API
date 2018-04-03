@@ -3,7 +3,6 @@ package models
 import (
 	"apoyoalimentario_CRUD_API/db"
 	"apoyoalimentario_CRUD_API/utility"
-	"strconv"
 	"strings"
 	"time"
 
@@ -134,28 +133,17 @@ func GetStatus(session *mgo.Session, code string) (state int) {
 }
 
 //UpdateState - update state in schedule of student
-func UpdateState(session *mgo.Session, cod string) error {
+func UpdateState(InfoEcoOldU *Economic, session *mgo.Session, cod string) error {
 	var InfoGeneralU StudentInformation
-	var InfoEcoOldU Economic
-	var salario ConfigurationOptions
-	var ResultRuler string
 
 	MainSession := db.Cursor(session, utility.CollectionGeneral)
 	EconomicSession := db.Cursor(session, utility.CollectionEconomic)
-	BDSMLV := db.Cursor(session, utility.CollectionAdministrator)
 
-	err := BDSMLV.Find(nil).One(&salario)
-
-	err = MainSession.Find(bson.M{"codigo": cod}).One(&InfoGeneralU)
+	err := MainSession.Find(bson.M{"codigo": cod}).One(&InfoGeneralU)
 	InfoGeneralU.Fechainscripcion = time.Now().UTC()
 	err = MainSession.Update(bson.M{"codigo": cod}, &InfoGeneralU)
 
-	err = EconomicSession.Find(bson.M{"id": InfoGeneralU.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}).One(&InfoEcoOldU)
-	LastState(&InfoEcoOldU)
-	/*Ruler MID API*/
-	InfoEcoOldU.Salario = strconv.Itoa(salario.Salariominimo)
-	ResultRuler, err = utility.SendJSONToRuler(utility.RulerPath, "PUT", InfoEcoOldU)
-	PostRules(&InfoEcoOldU, ResultRuler)
+	LastState(InfoEcoOldU)
 	err = EconomicSession.Update(bson.M{"id": InfoGeneralU.ID, "periodo": time.Now().UTC().Year(), "semestre": utility.Semester()}, &InfoEcoOldU)
 	return err
 }
@@ -197,5 +185,4 @@ func PostRules(old *Economic, Ruler string) {
 		old.TipoSubsidio = Ruler
 		old.EstadoProg = 2
 	}
-	old.Salario = ""
 }

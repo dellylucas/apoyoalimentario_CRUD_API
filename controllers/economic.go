@@ -107,21 +107,21 @@ func (j *EconomicController) LastPut() {
 			models.Deletefile(session, code, keyFileDelete)
 		}
 		if erro != nil {
-			j.Data["json"] = erro
+			j.Data["json"] = nil
 		} else {
 			values, err := models.GetRequiredFiles(session, code)
 			if err != nil {
-				j.Data["json"] = err.Error()
+				j.Data["json"] = nil
 			} else {
-				files, err := models.Completefile(session, code, values)
+				err := models.Completefile(session, code, values)
 				if err != nil {
-					j.Data["json"] = *files
+					j.Data["json"] = nil
 				} else {
-					err = models.UpdateState(session, code)
+					err = models.UpdateState(&InfoEcono, session, code)
 					if err != nil {
-						j.Data["json"] = err.Error()
+						j.Data["json"] = nil
 					} else {
-						j.Data["json"] = *files
+						j.Data["json"] = InfoEcono
 					}
 				}
 			}

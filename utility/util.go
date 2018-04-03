@@ -1,17 +1,12 @@
 package utility
 
 import (
-	"bytes"
-	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strings"
 	"sync"
 	"time"
-
-	"github.com/astaxie/beego"
 )
 
 //Semester - calcula el semestre actual
@@ -64,22 +59,4 @@ func GetInitEnd() (fromDate time.Time, toDate time.Time) {
 	fromDate = time.Date(time.Now().UTC().Year(), Inicial, 1, 0, 0, 0, 0, time.UTC)
 	toDate = time.Date(time.Now().UTC().Year(), Final, 30, 0, 0, 0, 0, time.UTC)
 	return fromDate, toDate
-}
-
-//SendJSONToRuler - Hace un llamado al MID API con la informacion Socioeconomica y obtiene el tipo de apoyo
-func SendJSONToRuler(url string, trequest string, datajson interface{}) (string, error) {
-	b := new(bytes.Buffer)
-	if datajson != nil {
-		json.NewEncoder(b).Encode(datajson)
-	}
-	client := &http.Client{}
-	req, err := http.NewRequest(trequest, url, b)
-	r, err := client.Do(req)
-	if err != nil {
-		beego.Error("error", err)
-		return "na", err
-	}
-	defer r.Body.Close()
-	contents, err := ioutil.ReadAll(r.Body)
-	return strings.Replace(string(contents), "\"", "", -1), err
 }

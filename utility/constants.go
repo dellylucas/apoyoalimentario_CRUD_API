@@ -25,9 +25,6 @@ const FileSavePath = "C:\\xampp\\htdocs\\Tempfiles\\"
 //ServerPath - URL del servidor donde los archivos son llamados APACHE
 const ServerPath = "http://localhost:80/Tempfiles/"
 
-//RulerPath - MID-API direccion del llamado
-const RulerPath = "http://localhost:8090/v1/resultado/"
-
 /*Collecciones de Base de Datos MONGODB*/
 
 //CollectionHistoricFiles - Nombre de la coleccion de BD del Historico de archivos

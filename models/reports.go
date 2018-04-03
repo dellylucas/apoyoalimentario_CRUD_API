@@ -32,7 +32,10 @@ type MappingColumn struct {
 	Score      string
 }
 
-//ReportsGeneric - Generate GENERIC Reports dynamic
+//ReportsGeneric - Genera reporte genericos Dinamicos
+//Param sa		IN   "estudiantes a generar  reporte"
+//Param NameSheet		IN   "nombre del libro excel asignado"
+//Param column		IN   "columnas a generar dentro del reporte"
 func ReportsGeneric(sa *[]StudentInformation, NameSheet string, column *[]int) {
 	var file *xlsx.File
 	var sheet *xlsx.Sheet
@@ -78,7 +81,10 @@ func ReportsGeneric(sa *[]StudentInformation, NameSheet string, column *[]int) {
 	}
 }
 
-//ReportGeneral - Generate Reports students
+//ReportGeneral - Generar reporte final con puntajes de estudiantes
+//Param session		IN   "sesion de base de datos"
+//Param students		IN   "estudiantes a generar  reporte"
+//Param name		IN   "nombre del libro excel asignado"
 func ReportGeneral(session *mgo.Session, students *[]StudentInformation, name string) {
 	BDSMLV := db.Cursor(session, utility.CollectionAdministrator)
 	var salario ConfigurationOptions
@@ -141,7 +147,8 @@ func ReportGeneral(session *mgo.Session, students *[]StudentInformation, name st
 	}
 }
 
-//OthersReports - Generate Reports students
+//OthersReports - Genera reportes ser pilo paga - estudiantes con sisben y total de inscritos por tipo de apoyo
+//Param students		IN   "estudiantes a generar  reporte"
 func OthersReports(students *[]StudentInformation) {
 
 	var file *xlsx.File
@@ -264,22 +271,33 @@ func OthersReports(students *[]StudentInformation) {
 
 /* bonus functions*/
 
-//MakeThing - Construc of model
+//MakeThing - construye modelo de columnas sin puntaje
+//Param Col		IN   "nombre de columna"
+//Param Val		IN   "valor o id"
+//Param Keys	IN   "nombre asignado en base de datos"
 func MakeThing(Col string, Val int, Keys string) MappingColumn {
 	return MappingColumn{Col, Val, Keys, "", ""}
 }
 
-//MakeThingD - Construc of model
+//MakeThingD - construye modelo de columnas con puntaje
+//Param Col		IN   "nombre de columna"
+//Param Val		IN   "valor o id"
+//Param Keys	IN   "nombre asignado en base de datos"
+//Param Score	IN   "Puntaje asignado a dicha respuesta"
 func MakeThingD(Col string, Val int, Keys string, Score string) MappingColumn {
 	return MappingColumn{Col, Val, Keys, "", Score}
 }
 
-//MapingBD - map BD to Collumn Dynamic
+//MapingBD - mapeo de valores por columna dynamicos (identificacion de columnas y valores)
+//Param sa		IN   "estudiante"
+//Param values		IN   "valores de columnas"
 func MapingBD(sa *StudentInformation, values *MappingColumn) {
 	values.Result = sa.reflect(values.Key)
 }
 
-// reflection information general
+//reflect - reflexion information general encontrar valor
+//Param ret		IN   "nombre de columna"
+//Param res		OUT   "retorna el valor de la columna"
 func (f *StudentInformation) reflect(ret string) interface{} {
 	val := reflect.ValueOf(f).Elem()
 	var res interface{}
@@ -302,7 +320,9 @@ func (f *StudentInformation) reflect(ret string) interface{} {
 	return res
 }
 
-// reflection information economic
+//reflectEcono - reflexion information economica encontrar valor
+//Param ret		IN   "nombre de columna"
+//Param res		OUT   "retorna el valor de la columna"
 func (f *Economic) reflectEcono(ret string) interface{} {
 	val := reflect.ValueOf(f).Elem()
 	var res interface{}
@@ -318,7 +338,8 @@ func (f *Economic) reflectEcono(ret string) interface{} {
 	return res
 }
 
-//RescueInformation - rescue information of student
+//RescueInformation - optiene la informacion basica de un estudiante para reportes
+//Param sa		IN   "estudiante a consultar y retornar informacion"
 func RescueInformation(sa *StudentInformation) {
 	var wg sync.WaitGroup
 	wg.Add(3)
@@ -341,7 +362,10 @@ func RescueInformation(sa *StudentInformation) {
 	sa.Promedio = ModelAcademic.Promedio
 }
 
-//Evaluation  - evaluate bussines rules
+//Evaluation  -evaluacion de reglas de negocio para reportes
+//Param maping		IN   "clave de la columna"
+//Param salario		IN   "salario minimo configurado por el administrador"
+//Param i	OUT   "puntaje"
 func Evaluation(maping *MappingColumn, salario int) int {
 	i := 0
 	switch con := maping.Key; con {
@@ -417,7 +441,9 @@ func Evaluation(maping *MappingColumn, salario int) int {
 	return i
 }
 
-//ProcessinData  - evaluate bussines rules
+//ProcessinData  - mapeo de valores para reportes
+//Param data		IN   "clave de la columna"
+//Param temp	OUT   "valor a remplzar"
 func ProcessinData(data *MappingColumn) string {
 	var temp string
 	temp = data.Result.(string)
@@ -453,7 +479,8 @@ func ProcessinData(data *MappingColumn) string {
 	return temp
 }
 
-//GEtMappingColumn - Get values Metadata for reports
+//GEtMappingColumn - optiene los valores de metadata de las columnas para generar reportes
+//Param Global	OUT   "columnas"
 func GEtMappingColumn() *[]MappingColumn {
 	var Global []MappingColumn
 

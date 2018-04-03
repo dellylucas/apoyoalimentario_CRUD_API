@@ -10,6 +10,7 @@ import (
 )
 
 //Semester - calcula el semestre actual
+//Param round		OUT   "semestre actual"
 func Semester() (round int) {
 	NowMonth := time.Now().UTC().Month()
 
@@ -22,6 +23,10 @@ func Semester() (round int) {
 }
 
 //GetServiceXML - Obtiene datos desde una URL de un servicio XML
+//Param T		IN   "modelo que va a ser el mmapeo de los datos retornados"
+//Param url		IN   "url a realizar la peticion"
+//Param wg	IN   "variable para alertar las gorutines"
+//Param err		OUT   "error si es que existe"
 func GetServiceXML(T interface{}, url string, wg *sync.WaitGroup) error {
 
 	response, err := http.Get(url)
@@ -44,7 +49,9 @@ func GetServiceXML(T interface{}, url string, wg *sync.WaitGroup) error {
 	return err
 }
 
-//GetInitEnd - Retorna el comienxo y fin de un semestre en formato Time
+//GetInitEnd - Retorna el comienzo y fin de un semestre en formato Time
+//Param fromDate		OUT   "fecha comienzo de semestre actual"
+//Param toDate		OUT   "fecha fin de semestre actual"
 func GetInitEnd() (fromDate time.Time, toDate time.Time) {
 	Semester := Semester()
 	var Inicial time.Month

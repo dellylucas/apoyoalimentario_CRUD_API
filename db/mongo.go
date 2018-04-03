@@ -9,7 +9,10 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-//Cursor - sd
+//Cursor -  conexion a la coleccion deseada
+// Param	session		 	IN	"sesion actual"
+// Param	Collection		IN	"coleccion la cual se desea conectar"
+// Param  c 			OUT		"retorna la conexion a dicha coleccion"
 func Cursor(session *mgo.Session, Collection string) *mgo.Collection {
 	mongoDB := beego.AppConfig.String("mongo_db")
 	c := session.DB(mongoDB).C(Collection)

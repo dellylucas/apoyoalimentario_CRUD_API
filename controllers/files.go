@@ -16,17 +16,17 @@ type FileController struct {
 	beego.Controller
 }
 
-//Post - create Files
+//Post - crea los archivos en repositorio establecido e inserta en historico
 // @Title CreateFile
-// @Description create Files
-// @Param	body		body 	models.File	true		"body for File content"
+// @Description crea los archivos en repositorio establecido e inserta en historico
+// @Param	body		body 	models.File	true		"el cuerpo contiene los archivos y codigo del estudiante al cual pertenecen"
 // @Success 200 {int} models.File.Id
 // @Failure 403 body is empty
 // @router / [post]
 func (u *FileController) Post() {
 
 	getcode := u.Ctx.Request.MultipartForm.Value
-	//get code
+	//get code student
 	code := getcode["cod"][0]
 	if code != "" {
 		path := utility.FileSavePath + code + "\\" + strconv.Itoa(time.Now().UTC().Year()) + "-" + strconv.Itoa(utility.Semester()) + "\\"
@@ -55,10 +55,10 @@ func (u *FileController) Post() {
 	u.ServeJSON()
 }
 
-//Get - get File by code
+//Get - optiene el historico de los archivos de un estudiante
 // @Title Get
-// @Description get File by code
-// @Param	uid		path 	string	true		"The key for staticblock"
+// @Description optiene el historico de los archivos subidos de un estudiante en el semeste en curso
+// @Param	code		path 	string	true		"codigo del estudiante a consultar"
 // @Success 200 {object} models.File
 // @Failure 403 :code is empty
 // @router /:code [get]

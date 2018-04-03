@@ -21,7 +21,10 @@ type FilesStudents struct {
 	Urlfile    string        `json:"url" bson:"url"`
 }
 
-//Deletefile - check files not used and delete
+//Deletefile - chequea archivos que estudiante elimina y borra (historial y servidor)
+//Param session		IN   "sesion de base de datos"
+//Param code		IN   "Codigo del estudiante a consultar"
+//Param claves	IN   "lista de nombres de archivos que no deben de estar en servidor ni historico"
 func Deletefile(session *mgo.Session, code string, claves *[]string) {
 
 	FileSession := db.Cursor(session, utility.CollectionHistoricFiles)
@@ -33,7 +36,11 @@ func Deletefile(session *mgo.Session, code string, claves *[]string) {
 	}
 }
 
-//Completefile - Check files complete
+//Completefile - verifica que todos los documentos esten para realizar inscripcion
+//Param session		IN   "sesion de base de datos"
+//Param code		IN   "Codigo del estudiante a consultar"
+//Param clave	IN   "lista de nombres de archivos que si deben de estar en servidor e historico"
+//Param errP		OUT   "error si es que existe"
 func Completefile(session *mgo.Session, code string, clave *[]string) error {
 
 	FileSession := db.Cursor(session, utility.CollectionHistoricFiles)
@@ -49,7 +56,11 @@ func Completefile(session *mgo.Session, code string, clave *[]string) error {
 	return errP
 }
 
-//GetFiles - get all files by code in current semester
+//GetFiles - optiene todos los arcivos del historial para un estudiante en el semestre actual
+//Param session		IN   "sesion de base de datos"
+//Param code		IN   "Codigo del estudiante a consultar"
+//Param Infofilepath	OUT   "Archivos que tiene el estudiante subidos al servidor"
+//Param errP		OUT   "error si es que existe"
 func GetFiles(session *mgo.Session, code string) (*[]FilesStudents, error) {
 
 	FileSession := db.Cursor(session, utility.CollectionHistoricFiles)
@@ -60,7 +71,11 @@ func GetFiles(session *mgo.Session, code string) (*[]FilesStudents, error) {
 	return &Infofilepath, errP
 }
 
-//Insertfile - Insert file(s) in path
+//Insertfile - Inserta archivos en el historico
+//Param session		IN   "sesion de base de datos"
+//Param name		IN   "nombre del archivo"
+//Param size	IN   "tamaño dl archivo"
+//Param code		IN   "codigo del estudiante"
 func Insertfile(session *mgo.Session, name string, size int64, code string) { //nombre ,tamañ, fech, autor
 	FileSession := db.Cursor(session, utility.CollectionHistoricFiles)
 	var Exists FilesStudents

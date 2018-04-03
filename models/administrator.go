@@ -21,7 +21,12 @@ type ConfigurationOptions struct {
 	Salariominimo      int      `json:"salariominimo" bson:"salariominimo"`
 }
 
-//GetInscription - all records for current semester by Sede
+//GetInscription - Retorna todos los estudiantes de un semestre, año(periodo), estado y/o sede  establecido
+//Param session  IN	"sesion de base de datos"
+//Param State	IN	"estado en el programa de los estudiantes a consultar"
+//Param model	IN	"modelo determina el semestre, año y sede a consultar"
+//Param InfoGeneralComplete	OUT  "Devuelve todos los estudiantes a consultar"
+//Param err		OUT   "error si es que existe"
 func GetInscription(session *mgo.Session, State string, model *ReportsType) (*[]StudentInformation, error) {
 
 	MainSession := db.Cursor(session, utility.CollectionGeneral)
@@ -63,17 +68,23 @@ func GetInscription(session *mgo.Session, State string, model *ReportsType) (*[]
 	return &InfoGeneralComplete, err
 }
 
-//GetConfiguration - View message administrator
+//GetConfiguration - Retorna la configuracion del administrador
+//Param session		IN  	"sesion de base de datos"
+//Param Config		OUT   "Retorna la configuracion del administrador"
+//Param err		OUT   "error si es que existe"
 func GetConfiguration(session *mgo.Session) (*ConfigurationOptions, error) {
 
 	BDMessage := db.Cursor(session, utility.CollectionAdministrator)
 	defer session.Close()
-	var MessageComplete ConfigurationOptions
-	err := BDMessage.Find(nil).One(&MessageComplete)
-	return &MessageComplete, err
+	var Config ConfigurationOptions
+	err := BDMessage.Find(nil).One(&Config)
+	return &Config, err
 }
 
-//UpdateInformationConfig - Update the information economic of student
+//UpdateInformationConfig - Actualiza la informacion de la configuarcion el administrador
+//Param session		IN  	"sesion de base de datos"
+//Param newInfo		IN  	"tiene el modelo de las variables de configuracion a actualizar"
+//Param err		OUT   "error si es que existe"
 func UpdateInformationConfig(session *mgo.Session, newInfo *ConfigurationOptions) error {
 	BDMessage := db.Cursor(session, utility.CollectionAdministrator)
 	defer session.Close()
@@ -84,7 +95,10 @@ func UpdateInformationConfig(session *mgo.Session, newInfo *ConfigurationOptions
 
 /* function bonus */
 
-//Getname - Get name of student for faculty
+//Getname - optiene la informacion basica de los estudiantes que poseen informacion economica del actual semestre y pertenecen a una sede especifica
+//Param model		IN  	"estudiantes optenidos de base de datos"
+//Param SedeChecker		IN  	"filtro de sede"
+//Param Getinfo		OUT 	"estudiantes post filtro"
 func Getname(model *[]StudentInformation, SedeChecker string) []StudentInformation {
 	var ModelBasic XmlBasic
 	var Getinfo []StudentInformation

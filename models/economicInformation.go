@@ -41,7 +41,11 @@ type Economic struct {
 	Verificadopor   string        `json:"verificadopor" bson:"verificadopor"`
 }
 
-//GetInformationEconomic - get information economic current semester by code
+//GetInformationEconomic - Optine la informacion economica de un estudiante en el actual semestre
+//Param session		IN   "sesion de base de datos"
+//Param code		IN   "Codigo del estudiante a consultar"
+//Param InfoEcono	OUT   "modelo de informacion economica consultado"
+//Param errP		OUT   "error si es que existe"
 func GetInformationEconomic(session *mgo.Session, code string) (*Economic, error) {
 	var InfoGeneral StudentInformation
 	var InfoEcono Economic
@@ -56,7 +60,12 @@ func GetInformationEconomic(session *mgo.Session, code string) (*Economic, error
 	return &InfoEcono, errP
 }
 
-//UpdateInformationEconomic - Update the information economic of student
+//UpdateInformationEconomic - Actualiza la informacion economica de un estudiante
+//Param session		IN   "sesion de base de datos"
+//Param newInfo		IN   "nueva informacion economica"
+//Param code		IN   "Codigo del estudiante a consultar"
+//Param keyfiledelete	OUT   "lista de nombres de archivos que no deben de estar en servidor ni historico"
+//Param err		OUT   "error si es que existe"
 func UpdateInformationEconomic(session *mgo.Session, newInfo *Economic, code string) (*[]string, error) {
 	var InfoGeneral StudentInformation
 	var InfoEcoOld Economic
@@ -73,7 +82,11 @@ func UpdateInformationEconomic(session *mgo.Session, newInfo *Economic, code str
 	return &keyfiledelete, err
 }
 
-//GetRequiredFiles - get infoeconomica periodo y semestre actual de un estudiante por codigo
+//GetRequiredFiles - optiene los archivos que un estudiante debe tener para poder realizar una correcta inscripcion
+//Param session		IN   "sesion de base de datos"
+//Param code		IN   "Codigo del estudiante a consultar"
+//Param keyrequired	OUT   "lista de nombres de archivos que SI deben de estar en servidor y historico"
+//Param errP		OUT   "error si es que existe"
 func GetRequiredFiles(session *mgo.Session, code string) (*[]string, error) {
 	var InfoGeneral StudentInformation
 	var InfoEcono Economic
@@ -104,7 +117,11 @@ func GetRequiredFiles(session *mgo.Session, code string) (*[]string, error) {
 	return &keyrequired, errP
 }
 
-//UpdateStateVerificator - update state later verification of student
+//UpdateStateVerificator - Actualiza el estado de un estudiante luego de ser verificado
+//Param session		IN   "sesion de base de datos"
+//Param code		IN   "Codigo del estudiante a consultar"
+//Param info	IN    "informacion de estado, vericicador que califico y mensaje que se va a guardar"
+//Param err		OUT   "error si es que existe"
 func UpdateStateVerificator(session *mgo.Session, cod string, info *Economic) error {
 	var InfoGeneralU StudentInformation
 	var InfoEcoOldU Economic
@@ -121,7 +138,10 @@ func UpdateStateVerificator(session *mgo.Session, cod string, info *Economic) er
 
 /* Functions Bonus*/
 
-//Rescueinf - Update information model and validate save files
+//Rescueinf - Actualiza la informacion del modelo y verifica archivos que deben estar
+//Param newI		IN   "nueva informacion socio economica"
+//Param old		IN   "antigua informacion socioeconomica"
+//Param FileExists	IN    "archivos que deben estar en el historico y en el servidor"
 func Rescueinf(newI *Economic, old *Economic, FileExists *[]string) {
 	old.EstadoProg = newI.EstadoProg
 	//replace old information
@@ -200,7 +220,9 @@ func Rescueinf(newI *Economic, old *Economic, FileExists *[]string) {
 	}
 }
 
-//VerificatorUpdate - Update information model
+//VerificatorUpdate - Actualiza informacion socioeconomica antigua
+//Param newI	IN   "nueva informacion socio economica"
+//Param old		IN   "antigua informacion socioeconomica"
 func VerificatorUpdate(newI *Economic, old *Economic) {
 
 	old.EstadoProg = newI.EstadoProg

@@ -13,18 +13,16 @@ import (
 	"github.com/astaxie/beego"
 )
 
-/*pruebasbienestar bienestarinstitucional*/
-
 //AdministratorController Operaciones Crud admin
 type AdministratorController struct {
 	beego.Controller
 }
 
-//GetStudents - get Administrator by state
+//GetStudents - optiene los estudiantes que se encuentran en un estado y una sede especifica
 // @Title GetStudents
-// @Description get Administrator by state
+// @Description get Administrator by state and sede
 // @Param	state		path 	string	true		"El estado del proceso a consultar"
-// @Param	sede		path 	string	true		"El estado del proceso a consultar"
+// @Param	sede		path 	string	true		"la sede consultar"
 // @Success 200 {object} models.Infoapoyo
 // @Failure 403 :state is empty
 // @router /:state/:sede [get]
@@ -46,7 +44,7 @@ func (j *AdministratorController) GetStudents() {
 	j.ServeJSON()
 }
 
-//GetConfig - get configuration Administrator
+//GetConfig - devuelve la configuracion del sistema
 // @Title GetConfig
 // @Description get configuration Administrator
 // @Success 200 {string}
@@ -65,10 +63,10 @@ func (j *AdministratorController) GetConfig() {
 	j.ServeJSON()
 }
 
-//PutConfig - update the configuration
+//PutConfig - Actualiza la configuracion
 // @Title PutConfig
 // @Description update the configuration
-// @Param	body		body 	models.Object	true		"The body"
+// @Param	body		body 	models.Object	true		"la configuracion que se desea actualizar"
 // @Success 200 {object} models.Object
 // @router / [put]
 func (j *AdministratorController) PutConfig() {
@@ -87,10 +85,10 @@ func (j *AdministratorController) PutConfig() {
 	j.ServeJSON()
 }
 
-//PutState - update the Infoapoyo
+//PutState - Actualiza el estado de un estudiante post verificacion
 // @Title PutState
 // @Description update the Infoapoyo
-// @Param	code		path 	string	true		"The code you want to update"
+// @Param	code		path 	string	true		"codigo de estudiante a actualizar"
 // @Success 200 {object} models.Object
 // @Failure 403 :code is empty
 // @router /verification/:code [put]
@@ -111,10 +109,10 @@ func (j *AdministratorController) PutState() {
 	j.ServeJSON()
 }
 
-//Post - reports Administrator
+//Post - Genera reportes de estudiantes verificados correctamente segun un tipo ya especificado
 // @Title GetReport
 // @Description reports Administrator
-// @Param	body		body 	"body for File content"
+// @Param	body		body 	"Opciones del reporte a generar"
 // @Success 200 {object} models.Infoapoyo
 // @Failure 403 body is empty
 // @router /report [post]
@@ -150,7 +148,7 @@ func (j *AdministratorController) Post() {
 
 /*Verificador*/
 
-//GetVerif - get configuration Administrator
+//GetVerif - optiene la configuracion de la asociacion de verificadores y sedes
 // @Title GetVerif
 // @Description get configuration verifier
 // @Success 200 {string}
@@ -168,10 +166,9 @@ func (j *AdministratorController) GetVerif() {
 	j.ServeJSON()
 }
 
-//PutVerif - update the verifier
+//PutVerif - Actualiza las asociaciones de verificadores y sedes
 // @Title PutVerif
 // @Description update the Infoapoyo
-// @Param	code		path 	string	true		"The code you want to update"
 // @Success 200 {object} models.Object
 // @router /verifier [put]
 func (j *AdministratorController) PutVerif() {
@@ -190,10 +187,10 @@ func (j *AdministratorController) PutVerif() {
 	j.ServeJSON()
 }
 
-//Getsede - get sedes of verifier
+//Getsede - muestra la(s) sede(s) las cuales tiene asignado un verificador
 // @Title Getsede
 // @Description  get sedes of verifier
-// @Param	name		path 	string	true		"El estado del proceso a consultar"
+// @Param	name		path 	string	true		"nombre del verificador a consultar"
 // @Success 200 {string}
 // @Failure 403 :name is empty
 // @router /verifier/:name [get]

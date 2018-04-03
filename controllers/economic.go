@@ -17,10 +17,10 @@ type EconomicController struct {
 	beego.Controller
 }
 
-//GetState - get State of student for intro in plataform
+//GetState - optiene el estado del estudiante en el programa para determinar el ingreso a la plataforma
 // @Title GetState
-// @Description get State of student for intro in plataform
-// @Param	code		path 	string	true		"El id del estudiante a consultar"
+// @Description  optiene el estado del estudiante en el programa para determinar el ingreso a la plataforma
+// @Param	code		path 	string	true		"El codigo del estudiante a consultar"
 // @Success 200 {object} models.Infoapoyo
 // @Failure 403 :code is empty
 // @router /state/:code  [get]
@@ -35,9 +35,9 @@ func (j *EconomicController) GetState() {
 	j.ServeJSON()
 }
 
-//Get - get Information of student in BD by code
+//Get - optiene la informacion socioeconomica del estudiante por codigo
 // @Title Get
-// @Description get Information of student in BD by code
+// @Description optiene la informacion socioeconomica del estudiante
 // @Param	code	path 	string	true		"El codigo del estudiante a consultar informacion economica"
 // @Success 200 {object} models.Infoapoyo
 // @Failure 403 :code is empty
@@ -59,10 +59,10 @@ func (j *EconomicController) Get() {
 	j.ServeJSON()
 }
 
-//Put - update the Information economic of student
+//Put - Actualiza la informacion socioeconomica del estudiante
 // @Title Put
-// @Description update the Infoapoyo
-// @Param	code		path 	string	true		"The code you want to update"
+// @Description Actualiza la informacion socioeconomica del estudiante
+// @Param	code		path 	string	true		"el codigo del estudiante a actualizar"
 // @Success 200 {object} models.Object
 // @Failure 403 :code is empty
 // @router /:code [put]
@@ -86,10 +86,10 @@ func (j *EconomicController) Put() {
 	j.ServeJSON()
 }
 
-//LastPut - update the Information last step of student
+//LastPut - Comprueba y actualiza la informacion y archivos en el historial
 // @Title LastPut
-// @Description update the Information last step of student
-// @Param	code		path 	string	true		"The code you want to update"
+// @Description Comprueba y actualiza la informacion y archivos en el historial ultimo paso para cambiar de estado al estudiante
+// @Param	code		path 	string	true		"el codigo del estudiante a actualizar"
 // @Success 200 {object} models.Object
 // @Failure 403 :code is empty
 // @router /state/:code [put]

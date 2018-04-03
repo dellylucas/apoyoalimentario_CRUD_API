@@ -17,7 +17,10 @@ type Sede struct {
 	Verificadores []string      `json:"verificadores" bson:"verificadores"`
 }
 
-//GetVerifier -
+//GetVerifier - Optiene todos las asociaciones de todos los verificadores
+//Param session		IN   "sesion de base de datos"
+//Param SedeVerif		OUT   "Optiene la asiciacion"
+//Param errd		OUT   "error si es que existe"
 func GetVerifier(session *mgo.Session) (*[]Sede, error) {
 	MainSession := db.Cursor(session, utility.CollectionAdministrator)
 
@@ -28,7 +31,10 @@ func GetVerifier(session *mgo.Session) (*[]Sede, error) {
 	return &SedeVerif, err
 }
 
-//UpdateVerifier -
+//UpdateVerifier - Actualiza las asociaciones de todos los verificadores
+//Param session		IN   "sesion de base de datos"
+//Param newInfo		IN   "asociaciones verificadoes y sedes"
+//Param err		OUT   "error si es que existe"
 func UpdateVerifier(session *mgo.Session, newInfo *[]Sede) error {
 	MainSession := db.Cursor(session, utility.CollectionAdministrator)
 	var err error
@@ -48,7 +54,11 @@ func UpdateVerifier(session *mgo.Session, newInfo *[]Sede) error {
 	return err
 }
 
-//GetSede - Get sedes of verifiers
+//GetSede - optiene la(s) sede(s) que esta asociado un verificador
+//Param session		IN   "sesion de base de datos"
+//Param name		IN   "nombre del verificador a consultar"
+//Param sedes		OUT   "Sedes a las cuales esta asociado el verificador"
+//Param err		OUT   "error si es que existe"
 func GetSede(session *mgo.Session, name string) (*[]string, error) {
 	MainSession := db.Cursor(session, utility.CollectionAdministrator)
 
@@ -63,6 +73,5 @@ func GetSede(session *mgo.Session, name string) (*[]string, error) {
 			}
 		}
 	}
-
 	return &sedes, err
 }

@@ -31,7 +31,10 @@ type BodyEmail struct {
 	EName   string `json:"eName" bson:"eName"`
 }
 
-//SearchInfor - get configuration of email
+//SearchInfor - retorna configuracion del correo
+//Param session		IN   "sesion de base de datos"
+//Param InfoConfig		OUT   "modelo guarda la configuracion"
+//Param errd		OUT   "error si es que existe"
 func SearchInfor(session *mgo.Session) (*Email, error) {
 	MainSession := db.Cursor(session, utility.CollectionAdministrator)
 	var InfoConfig Email
@@ -42,7 +45,10 @@ func SearchInfor(session *mgo.Session) (*Email, error) {
 	return &InfoConfig, errd
 }
 
-//EmailSender - send email
+//EmailSender - enviar correo electronico
+//Param session		IN   "sesion de base de datos"
+//Param Bod		IN   "modelo de correo, cuerpo y nombre del estudiante"
+//Param err		OUT   "error si es que existe"
 func EmailSender(Bod *BodyEmail, session *mgo.Session) error {
 	var Info Email
 	MainSession := db.Cursor(session, utility.CollectionAdministrator)
@@ -70,7 +76,9 @@ func EmailSender(Bod *BodyEmail, session *mgo.Session) error {
 	return err
 }
 
-//TestConnection - test conn
+//TestConnection - prueba de la conexion al correo electronico
+//Param Info		IN   "modelo de la configuracion a probar"
+//Param err		OUT   "error si es que existe"
 func TestConnection(Info *Email) error {
 
 	d := gomail.NewDialer(Info.Server, Info.Port, Info.EmailCon, Info.Pass)
@@ -80,7 +88,10 @@ func TestConnection(Info *Email) error {
 	return err
 }
 
-//UpdateEmailConfig - Update the information email
+//UpdateEmailConfig - Actualizar la configuracion de correo electronico
+//Param session		IN   "sesion de base de datos"
+//Param newInfo		IN   "modelo de la configuracion a actualizar"
+//Param err		OUT   "error si es que existe"
 func UpdateEmailConfig(session *mgo.Session, newInfo *Email) error {
 	BDMessage := db.Cursor(session, utility.CollectionAdministrator)
 	newInfo.Name = "email"

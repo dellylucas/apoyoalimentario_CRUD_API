@@ -28,7 +28,20 @@ type StudentInformation struct {
 	Promedio             string        `json:",omitempty" bson:",omitempty"`
 }
 
-//GetStatus - get status current of student in system
+//GetStatus - Optiene el estado actual de un estudiante en el sistema para el ingreso a la plataforma
+//Param session		IN   "sesion de base de datos"
+//Param code		IN   "Codigo del estudiante a consultar"
+//Param state		OUT   "estado del estudiante"
+/*STATE
+
+Ingreso para realizar la inscripcion
+		1 solo puede optar por almuerzo
+		2 derecho a optar entre almuerzo o refrigerio  nocturno
+Ingreso para solo leer no modificar
+		-1 solo lectura
+Estudiante No puede ingresar
+		0 no ingreso
+*/
 func GetStatus(session *mgo.Session, code string) (state int) {
 
 	var StateUniversity XmlEstado
@@ -132,7 +145,11 @@ func GetStatus(session *mgo.Session, code string) (state int) {
 	return state
 }
 
-//UpdateState - update state in schedule of student
+//UpdateState - Actualiza el estado del estudiante para aplicar reglas posterior
+//Param session		IN   "sesion de base de datos"
+//Param code		IN   "Codigo del estudiante"
+//Param InfoEcoOldU		IN   "nuevo estado del estudiante, tipo de apoyo y ciudad"
+//Param errP		OUT   "error si es que existe"
 func UpdateState(InfoEcoOldU *Economic, session *mgo.Session, cod string) error {
 	var InfoGeneralU StudentInformation
 
@@ -150,7 +167,10 @@ func UpdateState(InfoEcoOldU *Economic, session *mgo.Session, cod string) error 
 
 /* functions Bonus*/
 
-//TemplatenewEcon - create new template for the economic information of students
+//TemplatenewEcon -Crea una nueva plantilla paa la informacion economica de un estudiante
+//Param code		IN   "Codigo del estudiante"
+//Param j		IN   "modelo a actulizar informacion"
+//Param id		IN   "id que conserva la relacion con la informacion general"
 func TemplatenewEcon(j *Economic, id bson.ObjectId, code string) {
 	var v XmlMatricula
 	utility.GetServiceXML(&v, utility.EnrollmentService+code, nil)
@@ -164,7 +184,8 @@ func TemplatenewEcon(j *Economic, id bson.ObjectId, code string) {
 	j.TipoSubsidio = "na"
 }
 
-//LastState - Update Information economic empty
+//LastState - Actualizacion de estado y de la informacion economica vacia
+//Param old		IN   "modelo a actulizar informacion"
 func LastState(old *Economic) {
 
 	old.EstadoProg = 1
@@ -174,15 +195,5 @@ func LastState(old *Economic) {
 	}
 	if strings.Compare(old.Tipoapoyo, "") == 0 || strings.Compare(old.Tipoapoyo, "A") == 0 {
 		old.Tipoapoyo = "Almuerzo"
-	}
-}
-
-//PostRules - Update Information economic empty
-func PostRules(old *Economic, Ruler string) {
-	if strings.Compare(Ruler, "") == 0 {
-		old.EstadoProg = 0
-	} else {
-		old.TipoSubsidio = Ruler
-		old.EstadoProg = 2
 	}
 }

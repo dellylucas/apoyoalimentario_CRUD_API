@@ -13,9 +13,9 @@ type EmailController struct {
 	beego.Controller
 }
 
-//GetConfig - get configuration of conection
+//GetConfig - optiene la configuracion del correo
 // @Title GetConfig
-// @Description get Administrator by state
+// @Description optiene la configuracion del correo
 // @Success 200 {object} models.Email
 // @router / [get]
 func (j *EmailController) GetConfig() {
@@ -32,10 +32,10 @@ func (j *EmailController) GetConfig() {
 	j.ServeJSON()
 }
 
-//PutConfig - update the configuration
+//PutConfig - Actualiza la configuracion del correo electronico
 // @Title PutConfig
-// @Description update the configuration
-// @Param	body		body 	models.Object	true		"The body"
+// @Description Actualiza la configuracion del correo electronico
+// @Param	body		body 	models.Object	true		"Parametros de configuracion correo, contraseña, protocolo, seguridad, etc..."
 // @Success 200 {object} models.Object
 // @router / [put]
 func (j *EmailController) PutConfig() {
@@ -54,10 +54,9 @@ func (j *EmailController) PutConfig() {
 	j.ServeJSON()
 }
 
-//PutEmail - email send
+//PutEmail - Envia el correo electronico a un estudiante
 // @Title PutEmail
-// @Description update the Infoapoyo
-// @Param	code		path 	string	true		"The code you want to update"
+// @Description Envia el correo electronico a un estudiante
 // @Success 200 {object} models.Object
 // @router /send [put]
 func (j *EmailController) PutEmail() {
@@ -75,10 +74,9 @@ func (j *EmailController) PutEmail() {
 	j.ServeJSON()
 }
 
-//TestEmail - Test email
+//TestEmail - Prueba de la configuracion del correo
 // @Title TestEmail
-// @Description update the Infoapoyo
-// @Param	code		path 	string	true		"The code you want to update"
+// @Description Prueba de la configuracion del correo
 // @Success 200 {object} models.Object
 // @router /test [put]
 func (j *EmailController) TestEmail() {

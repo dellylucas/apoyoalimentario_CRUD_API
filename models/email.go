@@ -42,6 +42,7 @@ func SearchInfor(session *mgo.Session) (*Email, error) {
 	if errd != nil {
 		panic(errd)
 	}
+	InfoConfig.Pass = utility.Decrypt([]byte(InfoConfig.Pass), "password")
 	return &InfoConfig, errd
 }
 
@@ -95,6 +96,7 @@ func TestConnection(Info *Email) error {
 func UpdateEmailConfig(session *mgo.Session, newInfo *Email) error {
 	BDMessage := db.Cursor(session, utility.CollectionAdministrator)
 	newInfo.Name = "email"
+	newInfo.Pass = utility.Encrypt([]byte(newInfo.Pass), "password")
 	defer session.Close()
 	err := BDMessage.Update(bson.M{"name": "email"}, &newInfo)
 

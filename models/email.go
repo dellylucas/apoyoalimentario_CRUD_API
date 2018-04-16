@@ -55,7 +55,7 @@ func EmailSender(Bod *BodyEmail, session *mgo.Session) error {
 	MainSession := db.Cursor(session, utility.CollectionAdministrator)
 	err := MainSession.Find(bson.M{"name": "email"}).One(&Info)
 	if err == nil {
-		d := gomail.NewDialer(Info.Server, Info.Port, Info.EmailCon, Info.Pass)
+		d := gomail.NewDialer(Info.Server, Info.Port, Info.EmailCon, utility.Decrypt([]byte(Info.Pass), "password"))
 		d.SSL = Info.SecuritySSL
 		d.TLSConfig = &tls.Config{InsecureSkipVerify: Info.SecurityTLS}
 

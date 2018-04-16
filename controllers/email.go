@@ -84,8 +84,11 @@ func (j *EmailController) TestEmail() {
 	var TestToSend models.Email
 	json.Unmarshal(j.Ctx.Input.RequestBody, &TestToSend)
 	err := models.TestConnection(&TestToSend)
-
-	j.Data["json"] = "Conexion exitosa!"
+	/*
+	   return 1 to conection success
+	   return "(text of error) conection fail"
+	*/
+	j.Data["json"] = 1
 	if err != nil {
 		j.Data["json"] = "ERROR:  " + err.Error()
 	}
